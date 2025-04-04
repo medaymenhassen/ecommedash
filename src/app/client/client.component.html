@@ -1,0 +1,74 @@
+<div class="container">
+  <h2>Liste des Clients</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Status</th>
+        <th>Score de Jeu</th>
+        <th>Pattern d'Achat</th>
+        <th>Fréquence d'Interaction</th>
+        <th>Total Achats</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of clients">
+        <td>{{ client.nom }}</td>
+        <td>{{ client.status }}</td>
+        <td>{{ client.score_jeu }}</td>
+        <td>{{ client.pattern_achat }}</td>
+        <td>{{ client.frequence_interaction }}</td>
+        <td>{{ client.totalPurchases }}</td>
+        <td>
+          <button (click)="editClient(client)">Modifier</button>
+          <button (click)="deleteClient(client.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ajouter / Modifier un Client</h3>
+  <form [formGroup]="clientForm" (ngSubmit)="addOrUpdateClient()">
+    <input type="text" formControlName="nom" placeholder="Nom" required>
+    <input type="text" formControlName="status" placeholder="Status" required>
+    <input type="number" formControlName="score_jeu" placeholder="Score de Jeu">
+    <input type="text" formControlName="pattern_achat" placeholder="Pattern d'Achat">
+    <input type="text" formControlName="frequence_interaction" placeholder="Fréquence d'Interaction">
+    <input type="number" formControlName="totalPurchases" placeholder="Total Achats">
+    <button type="submit">Enregistrer</button>
+  </form>
+
+  <h2>Liste des Fournisseurs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Contact</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let fournisseur of fournisseurs">
+        <td>{{ fournisseur.nom }}</td>
+        <td>{{ fournisseur.contact || 'Non spécifié' }}</td>
+        <td>
+          <button (click)="editFournisseur(fournisseur)">Modifier</button>
+          <button (click)="deleteFournisseur(fournisseur.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ajouter / Modifier un Fournisseur</h3>
+  <form [formGroup]="fournisseurForm" (ngSubmit)="addOrUpdateFournisseur()">
+    <input type="text" formControlName="nom" placeholder="Nom" required>
+    <input type="text" formControlName="contact" placeholder="Contact">
+    <button type="submit">Enregistrer</button>
+  </form>
+</div>
+<h2>Graphiques</h2>
+<div class="charts">
+  <canvas #clientChart></canvas>
+  <canvas #fournisseurChart></canvas>
+</div>

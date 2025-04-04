@@ -1,0 +1,153 @@
+<div class="container">
+  <h2>Gestion des attributs de produit</h2>
+
+  <!-- Formulaire de création d'un nouvel attribut -->
+  <form [formGroup]="attributForm" (ngSubmit)="onCreate()">
+    <h3>Ajouter un nouvel attribut de produit</h3>
+
+    <div class="input-container">
+      <label for="color">Couleur</label>
+      <select formControlName="colorId" class="form-control" required>
+        <option *ngFor="let color of colors" [ngValue]="color.id">{{ color.title }}</option>
+      </select>
+      <div *ngIf="attributForm.get('colorId')?.invalid && attributForm.get('colorId')?.touched" class="text-danger">
+        La couleur est requise.
+      </div>
+    </div>
+
+    <div class="input-container">
+      <label for="size">Taille</label>
+      <select formControlName="sizeId" class="form-control" required>
+        <option *ngFor="let size of sizes" [ngValue]="size.id">{{ size.title }}</option>
+      </select>
+      <div *ngIf="attributForm.get('sizeId')?.invalid && attributForm.get('sizeId')?.touched" class="text-danger">
+        La taille est requise.
+      </div>
+    </div>
+
+    <div class="input-container">
+      <label for="product">Produit</label>
+      <select formControlName="productId" class="form-control" required>
+        <option *ngFor="let product of products" [ngValue]="product.id">{{ product.title }}</option>
+      </select>
+      <div *ngIf="attributForm.get('productId')?.invalid && attributForm.get('productId')?.touched" class="text-danger">
+        Le produit est requis.
+      </div>
+    </div>
+    <div class="input-container">
+      <label for="text">Texte</label>
+      <textarea id="text" class="form-control" formControlName="text" rows="3" (input)="onDetailInput($event)"></textarea>
+    </div>
+    <button type="button" class="btn btn-secondary" (click)="saveAsDraft()">Sauvegarder comme brouillon</button>
+    <button type="button" class="btn btn-danger" (click)="deleteDraft()">Supprimer le brouillon</button>
+    <h3>Prévisualisation</h3>
+    <div [innerHTML]="previewHtml"></div>
+
+
+    <div class="input-container">
+      <label for="length">Longueur</label>
+      <select formControlName="lengthId" class="form-control">
+        <option *ngFor="let length of lengths" [ngValue]="length.id">{{ length.title }}</option>
+      </select>
+    </div>
+
+    <div class="input-container">
+      <label for="price">Prix</label>
+      <input type="number" formControlName="price" class="form-control" min="0.01" required />
+      <div *ngIf="attributForm.get('price')?.invalid && attributForm.get('price')?.touched" class="text-danger">
+        Le prix est requis et doit être supérieur à 0.
+      </div>
+    </div>
+
+    <div class="input-container">
+      <label for="qte">Quantité</label>
+      <input type="number" formControlName="qte" class="form-control" min="1" required />
+      <div *ngIf="attributForm.get('qte')?.invalid && attributForm.get('qte')?.touched" class="text-danger">
+        La quantité est requise et doit être supérieure à 0.
+      </div>
+    </div>
+
+    <div class="input-container">
+      <label for="sales">ventes</label>
+      <input type="number" formControlName="sales" class="form-control" min="0" required />
+      <div *ngIf="attributForm.get('sales')?.invalid && attributForm.get('sales')?.touched" class="text-danger">
+        Les soldes doivent être supérieurs ou égaux à 0.
+      </div>
+    </div>
+
+    <div class="input-container">
+      <label for="imagePath">Chemin de l'image</label>
+      <input type="file" (change)="onFileChange($event, 'imagePath', attributForm)" #createImageInput>
+
+      <img *ngIf="selectedFilePreviews.imagePath" [src]="selectedFilePreviews.imagePath" alt="Prévisualisation Image">
+
+    </div>
+
+    <div class="input-container">
+      <label for="texturePath">Chemin de la texture</label>
+      <input type="file" (change)="onFileChange($event, 'texturePath', attributForm)" #createTextureInput>
+      <img *ngIf="selectedFilePreviews.texturePath" [src]="selectedFilePreviews.texturePath" alt="Prévisualisation Texture">
+
+    </div>
+
+    <div class="input-container">
+      <label for="videoPath">Chemin de la vidéo</label>
+      <input type="file" (change)="onFileChange($event, 'videoPath', attributForm)" #createVideoInput>
+      <video *ngIf="selectedFilePreviews.videoPath" [src]="selectedFilePreviews.videoPath" controls></video>
+
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="attributForm.invalid">
+      {{ selectedAttribute ? 'Update' : 'Créer' }}
+    </button>
+
+  </form>
+
+  <hr />
+
+  <!-- Liste des attributs de produit -->
+  <h3>Liste des attributs de produit</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>product</th>
+        <th>Couleur</th>
+        <th>Taille</th>
+        <th>Longueur</th>
+        <th>Prix</th>
+        <th>detail</th>
+        <th>Quantité</th>
+        <th>Image</th>
+        <th>Texture</th>
+        <th>Vidéo</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let attribute of productAttributes">
+        <td>{{ attribute.product.title }}</td>
+        <td>{{ attribute.color.title }}</td>
+        <td>{{ attribute.size.title }}</td>
+        <td>{{ attribute.length?.title }}</td>
+        <td>{{ attribute.price }}</td>
+        <td>{{ attribute.detail }}</td>
+        <td>{{ attribute.qte }}</td>
+        <td>
+          <img *ngIf="attribute.imageUrl" [src]="attribute.imageUrl" alt="Image" width="100" />
+          <span *ngIf="!attribute.imageUrl">N/A</span>
+        </td>
+        <td>
+          <img *ngIf="attribute.textureUrl" [src]="attribute.textureUrl" alt="Texture" width="100" />
+          <span *ngIf="!attribute.textureUrl">N/A</span>
+        </td>
+        <td>
+          <video *ngIf="attribute.videoUrl" [src]="attribute.videoUrl" controls width="150"></video>
+          <span *ngIf="!attribute.videoUrl">N/A</span>
+        </td>
+        <td>
+          <button (click)="onSelect(attribute)" class="btn btn-warning">Modifier</button>
+          <button (click)="attribute.id !== undefined ? onDelete(attribute.id) : null" class="btn btn-danger">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

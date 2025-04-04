@@ -1,0 +1,336 @@
+:root {
+  --primary-color: #008000; /* Vert */
+  --secondary-color: #004d00; /* Vert foncé */
+  --accent-color: #80c080; /* Vert clair */
+  --gradient-text: linear-gradient(to right, #ffffff, #52ab49); /* Dégradé du blanc au vert */
+}
+
+.colorthree {
+  background: linear-gradient(to right, #fff, #52ab49);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  color: var(--secondary-color);
+  background: var(--gradient-bg);
+}
+
+/* Main Section */
+.main {
+  position: relative;
+  width: 100%;
+  height: 750px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px 90px;
+}
+
+  /* Style pour l'image de fond */
+  .main .background-image {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Place l'image derrière le contenu */
+  }
+
+  .main .content {
+    max-width: 400px;
+    text-align: left;
+    color: #fff;
+    position: relative; /* Pour que le contenu soit au-dessus de l'image */
+  }
+
+    .main .content h1 {
+      font-size: 3em;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+.animation {
+  position: relative;
+  height: 70px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+  .animation p {
+    font-size: 23px;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+.btn {
+  color: #fff;
+  background: linear-gradient(to right, #2a3342, #52ab49);
+  font-size: 1em;
+  font-weight: 600;
+  display: inline-block;
+  padding: 12px 25px;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 1px;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+  margin: 40px 100px;
+  border-radius: 50px;
+  border: 1px solid #fff;
+}
+
+  .btn:hover {
+    background: #2a3342;
+  }
+
+/* Media Icons */
+.media {
+  margin-top: 40px;
+}
+
+  .media a {
+    color: #fff;
+    font-size: 24px;
+    margin: 0 15px;
+    transition: color 0.3s ease;
+  }
+
+    .media a:hover {
+      color: #3a6cf4;
+    }
+
+/* Titles */
+.title {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 2.5em;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.colorb {
+  color: #000;
+}
+
+.colorw {
+  color: #fff;
+}
+
+/* About Section */
+.about {
+  position: relative;
+}
+
+.section-title {
+  text-align: left;
+  padding: 0 0 0 470px;
+  color: white;
+  font-size: 50px;
+  justify-content: flex-end;
+  background: rgba(82, 171, 73, 0.4);
+  border-bottom: 5px solid #2a3342; /* Bordure en bas */
+  border-bottom-right-radius: 60px;
+  border-bottom-left-radius: 60px;
+}
+
+.about .background-image {
+  display: flex;
+  position: absolute;
+  top: 0px;
+  right: 0;
+  width: 100%;
+  height: 600px;
+  z-index: -1; /* Place l'image derrière le contenu */
+  background: #2a3342;
+}
+
+.about .content {
+  background: #2a3342;
+  margin: 390px 0 0 0;
+  display: flex;
+}
+.about .btn {
+  color: #fff;
+  background: linear-gradient(to right, #2a3342, #52ab49);
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-block;
+  padding: 12px 25px;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 1px;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+  margin: 40px 100px;
+  border-radius: 50px;
+  border: 1px solid #fff;
+  white-space: nowrap;
+}
+
+  .btn:hover {
+    background: #2a3342;
+  }
+
+.about .content .col-right {
+  color: #fff;
+  background: linear-gradient(to top, #2a3342, #52ab49);
+  font-size: 1em;
+  font-weight: 600;
+  display: inline-block;
+  padding: 10px 30px; /* Ajuste le padding pour que le texte ne soit pas trop large */
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 1px;
+  border-radius: 50px;
+  transition: background 0.3s ease;
+  margin: -60px 200px 20px 200px;
+  border: 1px solid #fff;
+}
+
+
+/* Écran tablette (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .main {
+    padding: 110px 40px;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+    .main .content {
+      max-width: 90%;
+    }
+
+  .section-title {
+    font-size: 40px;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .about .content {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 480px;
+  }
+
+  .about .btn {
+    margin: 70px 0;
+  }
+
+  .skills {
+    padding: 0 20px;
+  }
+
+    .skills .content {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .skills .col-right .skills-grid {
+      grid-template-columns: 1fr; /* Une seule colonne */
+    }
+
+  .services .content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .services .titleservice {
+    text-align: center;
+    font-size: 35px;
+  }
+}
+
+/* Écran mobile (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .main {
+    padding: 80px 20px;
+  }
+
+    .main .content h1 {
+      font-size: 2.5em;
+    }
+
+  .btn {
+    font-size: 0.9em;
+    padding: 10px 20px;
+    margin: 20px auto;
+  }
+
+  .section-title {
+    font-size: 35px;
+    padding: 0 10px;
+  }
+
+  .about .content {
+    margin-top: 480px;
+  }
+
+  .skills .titleskill {
+    font-size: 30px;
+  }
+
+  .skill-card {
+    width: 90%;
+  }
+
+  .services .titleservice {
+    font-size: 30px;
+  }
+}
+
+/* Écran très petit (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .main {
+    padding: 20px 10px;
+  }
+
+    .main .content h1 {
+      font-size: 2em;
+    }
+
+  .btn {
+    font-size: 0.8em;
+    padding: 8px 15px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .about .content {
+    width:100%;
+  }
+
+  .skills .titleskill {
+    font-size: 25px;
+  }
+
+  .skill-card {
+    width: 100%;
+  }
+
+  .services .titleservice {
+    font-size: 25px;
+  }
+}

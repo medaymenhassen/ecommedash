@@ -1,0 +1,6 @@
+<div>
+  <h2>Supprimer un utilisateur</h2>
+  <p>Cette action supprimera définitivement votre compte. Êtes-vous sûr de vouloir continuer ?</p>
+  <button (click)="deleteUser()">Oui, supprimer mon compte</button>
+  <p *ngIf="message">{{ message }}</p>
+</div>

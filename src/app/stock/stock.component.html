@@ -1,0 +1,104 @@
+
+<div class="stock-container">
+  <h1>Gestion du Stock</h1>
+  <p>{{ message }}</p>
+
+  <!-- Formulaire pour ajouter un produit -->
+  <h2>Ajouter un Produit</h2>
+  <form (ngSubmit)="addProduct()">
+    <label>Nom:</label>
+    <input [(ngModel)]="newProduct.name" name="name" required>
+
+    <label>Quantité:</label>
+    <input type="number" [(ngModel)]="newProduct.qte" name="qte" required>
+
+    <label>Date d'expiration:</label>
+    <input type="date" [(ngModel)]="newProduct.expirationDate" name="expirationDate" required>
+
+    <label>Marque:</label>
+    <input [(ngModel)]="newProduct.brand" name="brand" required>
+
+    <label>Catégorie:</label>
+    <input [(ngModel)]="newProduct.category" name="category" required>
+
+    <label>Prix:</label>
+    <input type="number" [(ngModel)]="newProduct.price" name="price" required>
+
+    <label>Coût de production:</label>
+    <input type="number" [(ngModel)]="newProduct.productionCost" name="productionCost" required>
+
+    <label>Méthode:</label>
+    <select [(ngModel)]="newProduct.method" name="method">
+      <option value="FIFO">FIFO</option>
+      <option value="LIFO">LIFO</option>
+    </select>
+
+
+
+    <button type="submit">Ajouter</button>
+  </form>
+  <p>Fournisseur sélectionné: {{ selectedFournisseursId }}</p>
+
+  <!-- Tableau des produits -->
+  <h2>Produits</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Quantité</th>
+        <th>Date expiration</th>
+        <th>Prix</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.name }}</td>
+        <td>{{ product.qte }}</td>
+        <td>{{ product.expirationDate | date:'dd MM yyyy HH:mm:ss' }}</td>
+
+        <td>{{ product.price }} €</td>
+        <td>
+          <button (click)="removeProduct(product.id)">Retirer</button>
+
+          <button (click)="updateProduct(product.id)">Ajouter</button>
+          <button (click)="deleteProduct(product.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Revenus et Profits -->
+  <h2>Revenus et Profits</h2>
+  <p>Total des revenus : {{ totalRevenue }} €</p>
+  <p>Total des profits : {{ totalProfit }} €</p>
+</div>
+<input type="number" [(ngModel)]="quantityToRemove" min="1" placeholder="Quantité">
+<select [(ngModel)]="selectedClientId">
+  <option value="">Sélectionnez un client</option>
+  <option *ngFor="let client of clients" [value]="client.id">{{ client.nom }}</option>
+</select>
+
+<select [(ngModel)]="selectedFournisseursId" name="selectedFournisseur">
+  <option value="" disabled selected>Sélectionnez un fournisseur</option>
+  <option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur.id">
+    {{ fournisseur.nom }}
+  </option>
+</select>
+
+<h2>Graphique des Produits en Stock</h2>
+<canvas #productChart></canvas>
+
+<h2>Graphique des Ventes</h2>
+<div class="chart-container">
+  <h2>Évolution du bénéfice</h2>
+  <select (change)="onPeriodChange($event)">
+    <option value="hour">Heure</option>
+    <option value="day">Jour</option>
+    <option value="month">Mois</option>
+    <option value="quarter">Trimestre</option>
+    <option value="semester">Semestre</option>
+    <option value="year">Année</option>
+  </select>
+  <canvas #salesChart></canvas>
+</div>

@@ -1,0 +1,9 @@
+<div class="form-container">
+  <form [formGroup]="imageForm" (ngSubmit)="onSubmit()">
+    <label for="className">Enter Action:</label>
+    <input type="text" id="className" formControlName="className">
+    <button type="submit">Generate Image</button>
+  </form>
+</div>
+
+<video #videoElement></video>

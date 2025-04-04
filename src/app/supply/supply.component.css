@@ -1,0 +1,24 @@
+/* supply.component.css */
+.supply-management {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.supply-list {
+  margin-top: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.supply-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+  .supply-item:hover {
+    background-color: #f9f9f9;
+  }

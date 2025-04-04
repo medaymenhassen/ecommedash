@@ -1,0 +1,774 @@
+import { Injectable, NgZone } from '@angular/core';
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { Hands } from '@mediapipe/hands';
+import { Camera } from '@mediapipe/camera_utils';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AnimationService {
+  private scene!: THREE.Scene;
+  private camera!: THREE.PerspectiveCamera;
+  private renderer!: THREE.WebGLRenderer;
+  private mixamoModel!: THREE.Group;
+  private skeleton!: THREE.Skeleton;
+  private mixer!: THREE.AnimationMixer;
+  private videoElement!: HTMLVideoElement;
+  private hands!: Hands;
+  private clock = new THREE.Clock();
+  private debugMode = true; // Mode debug pour visualiser les points de tracking
+  private availableBones: string[] = []; // Liste des os disponibles
+  private bonePrefix = 'mixamorig'; // Préfixe pour les noms d'os
+  private handBoneMap: Map<string, string> = new Map(); // Mapping MediaPipe -> os du modèle
+  private lastHandPositions: Map<string, THREE.Vector3> = new Map(); // Pour le lissage
+  private smoothingFactor = 0.3; // Facteur de lissage pour les animations
+  private debugObjects: THREE.Object3D[] = []; // Objets pour visualisation debug
+
+  constructor(private ngZone: NgZone) { }
+
+  initializeScene(canvas: HTMLCanvasElement, width: number, height: number) {
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    this.camera.position.set(0, 1.5, 5);
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    this.renderer.setSize(width, height);
+    this.renderer.setClearColor(0x303030);
+
+    // Éclairage
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.7);
+    this.scene.add(hemisphereLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(0, 1, 1);
+    this.scene.add(directionalLight);
+    // Dans votre code
+    this.debugMode = true;
+    this.createDebugVisualizations();
+
+    this.loadModel();
+    this.setupHandTracking();
+    this.animate();
+  }
+
+  private loadModel() {
+    const loader = new FBXLoader();
+    loader.load('Remy.fbx',
+      (object) => {
+        object.scale.set(0.01, 0.01, 0.01);
+        this.scene.add(object);
+        this.mixamoModel = object;
+        this.mixer = new THREE.AnimationMixer(object);
+
+        // Trouver tous les os disponibles dans le modèle
+        this.availableBones = [];
+        object.traverse((child) => {
+          if (child instanceof THREE.SkinnedMesh) {
+            this.skeleton = child.skeleton;
+            if (this.skeleton && this.skeleton.bones) {
+              this.skeleton.bones.forEach(bone => {
+                this.availableBones.push(bone.name);
+              });
+              console.log("Os disponibles:", this.availableBones);
+              this.detectBonePrefix();
+              this.createBoneMapping();
+            }
+          }
+        });
+
+        if (this.debugMode) {
+          this.createDebugVisualizations();
+        }
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + '% chargé');
+      },
+      (error) => {
+        console.error('Erreur de chargement du modèle:', error);
+      }
+    );
+  }
+
+
+
+  private detectBonePrefix() {
+    if (this.availableBones.length === 0) return;
+
+    // Essayer de trouver un motif dans les noms d'os pour détecter le préfixe
+    const handBones = this.availableBones.filter(name =>
+      name.toLowerCase().includes('hand'));
+
+      //name.includes('RightHand') || name.includes('LeftHand') ||
+      //name.includes('Hand_R') || name.includes('Hand_L') ||
+      //name.includes('rightHand') || name.includes('leftHand')
+
+    //);
+
+    if (handBones.length > 0) {
+      const sample = handBones[0];
+      // Patterns courants: mixamorig:RightHand, RightHand, Hand_R, etc.
+      /*const patterns = [
+        /^(.*?)(Right|Left)Hand/,
+        /^(.*?)(right|left)Hand/,
+        /^(.*?)Hand_(R|L)/
+      ];
+
+      for (const pattern of patterns) {
+        const match = sample.match(pattern);
+        if (match && match[1]) {
+          this.bonePrefix = match[1];
+          console.log(`Préfixe d'os détecté: "${this.bonePrefix}"`);
+          return;
+        }
+      }*/
+    }
+
+    console.warn("Impossible de détecter le préfixe d'os, utilisation du préfixe par défaut:", this.bonePrefix);
+  }
+
+
+  private createCustomBoneMapping() {
+    // Mappage spécifique pour Remy.fbx
+    this.handBoneMap.set('left_0', 'Remy_LeftHand');
+    this.handBoneMap.set('left_1', 'Remy_LeftThumb1');
+    // Continuer avec tous les os nécessaires
+  }
+
+  // Création du mapping entre les points MediaPipe et les os du modèle
+  private createBoneMapping() {
+    const fingerNames = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
+
+    // Essayer plusieurs variantes de noms
+    const sideVariants = [
+      { left: 'Left', right: 'Right' },
+      { left: 'left', right: 'right' },
+      { left: 'L', right: 'R' }
+    ];
+
+    // Mapping des indices MediaPipe vers les noms d'os
+    const landmarkToBoneMap = [
+      { landmark: 0, finger: 'Wrist' }, // Poignet
+      { landmark: 1, finger: 'Thumb', joint: 1 },
+      { landmark: 2, finger: 'Thumb', joint: 2 },
+      { landmark: 3, finger: 'Thumb', joint: 3 },
+      { landmark: 4, finger: 'Thumb', joint: 4 }, // Bout du pouce
+      { landmark: 5, finger: 'Index', joint: 1 },
+      { landmark: 6, finger: 'Index', joint: 2 },
+      { landmark: 7, finger: 'Index', joint: 3 },
+      { landmark: 8, finger: 'Index', joint: 4 }, // Bout de l'index
+      { landmark: 9, finger: 'Middle', joint: 1 },
+      { landmark: 10, finger: 'Middle', joint: 2 },
+      { landmark: 11, finger: 'Middle', joint: 3 },
+      { landmark: 12, finger: 'Middle', joint: 4 }, // Bout du majeur
+      { landmark: 13, finger: 'Ring', joint: 1 },
+      { landmark: 14, finger: 'Ring', joint: 2 },
+      { landmark: 15, finger: 'Ring', joint: 3 },
+      { landmark: 16, finger: 'Ring', joint: 4 }, // Bout de l'annulaire
+      { landmark: 17, finger: 'Pinky', joint: 1 },
+      { landmark: 18, finger: 'Pinky', joint: 2 },
+      { landmark: 19, finger: 'Pinky', joint: 3 },
+      { landmark: 20, finger: 'Pinky', joint: 4 } // Bout de l'auriculaire
+    ];
+
+    // Essayer différents motifs de nommage pour trouver les os correspondants
+    for (const { landmark, finger, joint } of landmarkToBoneMap) {
+      if (finger === 'Wrist') {
+        // Gérer le poignet séparément
+        for (const { left, right } of sideVariants) {
+          const leftKey = `left_${landmark}`;
+          const rightKey = `right_${landmark}`;
+
+          const leftPattern = `${this.bonePrefix}${left}Hand`;
+          const rightPattern = `${this.bonePrefix}${right}Hand`;
+
+          const leftBone = this.findMatchingBone(leftPattern);
+          const rightBone = this.findMatchingBone(rightPattern);
+
+          if (leftBone) this.handBoneMap.set(leftKey, leftBone);
+          if (rightBone) this.handBoneMap.set(rightKey, rightBone);
+        }
+      } else if (joint !== undefined) {
+        // Gérer les articulations des doigts
+        for (const { left, right } of sideVariants) {
+          const leftKey = `left_${landmark}`;
+          const rightKey = `right_${landmark}`;
+
+          // Vérifier différents patterns de nommage
+          const patterns = [
+            `${this.bonePrefix}${left}${finger}${joint}`,
+            `${this.bonePrefix}${left}_${finger.toLowerCase()}${joint}`,
+            `${finger}${joint}_${left}`,
+            `${left}${finger}${joint}`
+          ];
+
+          for (const pattern of patterns) {
+            const leftBone = this.findMatchingBone(pattern);
+            if (leftBone) {
+              this.handBoneMap.set(leftKey, leftBone);
+              break;
+            }
+          }
+
+          // Pareil pour la main droite
+          const rightPatterns = [
+            `${this.bonePrefix}${right}${finger}${joint}`,
+            `${this.bonePrefix}${right}_${finger.toLowerCase()}${joint}`,
+            `${finger}${joint}_${right}`,
+            `${right}${finger}${joint}`
+          ];
+
+          for (const pattern of rightPatterns) {
+            const rightBone = this.findMatchingBone(pattern);
+            if (rightBone) {
+              this.handBoneMap.set(rightKey, rightBone);
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log("Mapping des os de la main créé:", Object.fromEntries(this.handBoneMap));
+  }
+
+  // Trouver un os qui correspond au motif donné
+  private findMatchingBone(pattern: string): string | null {
+    if (!this.availableBones.length) return null;
+
+    // Essayer d'abord une correspondance exacte
+    const exactMatch = this.availableBones.find(name => name === pattern);
+    if (exactMatch) return exactMatch;
+
+    // Essayer une correspondance partielle
+    const partialMatch = this.availableBones.find(name =>
+      name.toLowerCase().includes(pattern.toLowerCase())
+    );
+
+    return partialMatch || null;
+  }
+
+  // Créer des objets visibles pour déboguer le suivi des mains
+  private createDebugVisualizations() {
+    // Effacer les objets debug existants
+    this.debugObjects.forEach(obj => this.scene.remove(obj));
+    this.debugObjects = [];
+
+    // Créer une sphère de débogage pour chaque point de repère de la main
+    const sphereGeometry = new THREE.SphereGeometry(0.01, 16, 16);
+    const materialLeft = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const materialRight = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+    // Créer 21 sphères pour chaque main (MediaPipe suit 21 points par main)
+    for (let i = 0; i < 21; i++) {
+      // Sphères de débogage pour la main gauche
+      const sphereLeft = new THREE.Mesh(sphereGeometry, materialLeft);
+      sphereLeft.visible = false;
+      this.scene.add(sphereLeft);
+      this.debugObjects.push(sphereLeft);
+
+      // Sphères de débogage pour la main droite
+      const sphereRight = new THREE.Mesh(sphereGeometry, materialRight);
+      sphereRight.visible = false;
+      this.scene.add(sphereRight);
+      this.debugObjects.push(sphereRight);
+    }
+
+    // Créer des lignes pour connecter les points de repère
+    const fingerConnections = [
+      // Pouce
+      [0, 1], [1, 2], [2, 3], [3, 4],
+      // Index
+      [0, 5], [5, 6], [6, 7], [7, 8],
+      // Majeur
+      [0, 9], [9, 10], [10, 11], [11, 12],
+      // Annulaire
+      [0, 13], [13, 14], [14, 15], [15, 16],
+      // Auriculaire
+      [0, 17], [17, 18], [18, 19], [19, 20]
+    ];
+
+    // Créer des lignes de débogage pour les deux mains
+    for (const [start, end] of fingerConnections) {
+      // Connexions de la main gauche
+      const geometryLeft = new THREE.BufferGeometry();
+      const materialLineLeft = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+      const lineLeft = new THREE.Line(geometryLeft, materialLineLeft);
+      lineLeft.visible = false;
+      this.scene.add(lineLeft);
+      this.debugObjects.push(lineLeft);
+
+      // Connexions de la main droite
+      const geometryRight = new THREE.BufferGeometry();
+      const materialLineRight = new THREE.LineBasicMaterial({ color: 0xff0000 });
+      const lineRight = new THREE.Line(geometryRight, materialLineRight);
+      lineRight.visible = false;
+      this.scene.add(lineRight);
+      this.debugObjects.push(lineRight);
+    }
+  }
+
+  private setupHandTracking() {
+    // Créer un élément vidéo pour le flux de la caméra
+    this.videoElement = document.createElement('video');
+    this.videoElement.style.display = 'none';
+    document.body.appendChild(this.videoElement);
+
+    // Initialiser le flux vidéo
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        this.videoElement.srcObject = stream;
+        this.videoElement.play();
+      })
+      .catch(error => {
+        console.error('Erreur d\'accès à la caméra:', error);
+      });
+
+    // Initialiser MediaPipe Hands
+    this.hands = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      }
+    });
+
+    // Configurer le suivi des mains
+    this.hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.3,
+      minTrackingConfidence: 0.3
+    });
+
+    // Configurer le gestionnaire de résultats
+    this.hands.onResults((results) => {
+      this.processHandData(results);
+    });
+
+    // Démarrer le traitement de la caméra
+    const camera = new Camera(this.videoElement, {
+      onFrame: async () => {
+        try {
+          await this.hands.send({ image: this.videoElement });
+        } catch (error) {
+          console.error('Erreur dans le suivi des mains:', error);
+        }
+      },
+      width: 640,
+      height: 480
+    });
+
+    camera.start();
+  }
+
+  private processHandData(results: any) {
+    // Mettre à jour les visualisations de débogage si nécessaire
+    this.updateDebugVisualizations(results);
+
+    if (!results.multiHandLandmarks || !this.skeleton) {
+      return;
+    }
+
+    // Traiter chaque main détectée
+    results.multiHandLandmarks.forEach((landmarks: any, index: number) => {
+      const handedness = results.multiHandedness[index].label;
+      const isLeftHand = handedness === 'Left';
+
+      // Mettre à jour la position de la main (poignet)
+      this.updateHandPosition(landmarks, isLeftHand);
+
+      // Mettre à jour les positions et rotations des doigts
+      this.updateFingers(landmarks, isLeftHand);
+    });
+  }
+
+  // Mettre à jour les visualisations de débogage avec les positions actuelles des mains
+  private updateDebugVisualizations(results: any) {
+    if (!this.debugMode || !results || !results.multiHandLandmarks) return;
+
+    // Cacher tous les objets de débogage d'abord
+    this.debugObjects.forEach(obj => {
+      obj.visible = false;
+    });
+
+    // Mettre à jour les positions pour les mains détectées
+    results.multiHandLandmarks.forEach((landmarks: any, handIndex: number) => {
+      const isLeftHand = results.multiHandedness[handIndex].label === 'Left';
+      const offset = isLeftHand ? 0 : 21; // Décalage pour les objets de la main droite
+
+      // Mettre à jour les sphères
+      landmarks.forEach((landmark: any, i: number) => {
+        const sphere = this.debugObjects[i + handIndex * 21];
+        if (sphere instanceof THREE.Mesh) {
+          sphere.position.set(
+            (landmark.x - 0.5) * 2,
+            (0.5 - landmark.y) * 2,
+            landmark.z * -2
+          );
+          sphere.visible = true;
+        }
+      });
+
+      // Mettre à jour les lignes
+      const fingerConnections = [
+        // Pouce
+        [0, 1], [1, 2], [2, 3], [3, 4],
+        // Index
+        [0, 5], [5, 6], [6, 7], [7, 8],
+        // Majeur
+        [0, 9], [9, 10], [10, 11], [11, 12],
+        // Annulaire
+        [0, 13], [13, 14], [14, 15], [15, 16],
+        // Auriculaire
+        [0, 17], [17, 18], [18, 19], [19, 20]
+      ];
+
+      fingerConnections.forEach((connection, connectionIndex) => {
+        const lineIndex = 42 + connectionIndex + (isLeftHand ? 0 : fingerConnections.length);
+        const line = this.debugObjects[lineIndex];
+
+        if (line instanceof THREE.Line) {
+          const startLandmark = landmarks[connection[0]];
+          const endLandmark = landmarks[connection[1]];
+
+          const positions = new Float32Array([
+            (startLandmark.x - 0.5) * 2, (0.5 - startLandmark.y) * 2, startLandmark.z * -2,
+            (endLandmark.x - 0.5) * 2, (0.5 - endLandmark.y) * 2, endLandmark.z * -2
+          ]);
+
+          line.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+          line.geometry.attributes.position.needsUpdate = true;
+          line.visible = true;
+        }
+      });
+    });
+  }
+
+  private updateHandPosition(landmarks: any, isLeftHand: boolean) {
+    const prefix = isLeftHand ? 'left' : 'right';
+    const wristBoneName = this.handBoneMap.get(`${prefix}_0`);
+
+    if (wristBoneName && this.skeleton) {
+      const wristBone = this.skeleton.getBoneByName(wristBoneName);
+
+      if (wristBone) {
+        const wrist = landmarks[0];
+
+        // Calculer la position avec mise à l'échelle et décalage appropriés
+        const position = new THREE.Vector3(
+          (wrist.x - 0.5) * 2,  // Échelle et centrage X
+          (0.5 - wrist.y) * 2,  // Inversion et mise à l'échelle Y
+          wrist.z * -2          // Inversion et mise à l'échelle Z
+        );
+
+        // Appliquer un lissage en interpolant avec la position précédente
+        if (this.lastHandPositions.has(wristBoneName)) {
+          const lastPosition = this.lastHandPositions.get(wristBoneName)!;
+          position.lerp(lastPosition, this.smoothingFactor);
+        }
+
+        // Mettre à jour la rotation du poignet en fonction de l'orientation de la main
+        this.updateWristRotation(wristBone, landmarks, isLeftHand);
+
+        // Stocker la position pour le lissage de la prochaine image
+        this.lastHandPositions.set(wristBoneName, position.clone());
+
+        // Appliquer la position
+        wristBone.position.copy(position);
+      }
+    }
+  }
+
+  private updateWristRotation(wristBone: THREE.Bone, landmarks: any, isLeftHand: boolean) {
+    // Calculer l'orientation de la main à l'aide des points clés
+    const wrist = landmarks[0];
+    const middleBase = landmarks[9]; // Base du majeur
+    const pinkyBase = landmarks[17]; // Base de l'auriculaire
+
+    // Créer des vecteurs pour déterminer l'orientation de la main
+    const handCenter = new THREE.Vector3(wrist.x, wrist.y, wrist.z);
+    const middleDirection = new THREE.Vector3(
+      middleBase.x - wrist.x,
+      middleBase.y - wrist.y,
+      middleBase.z - wrist.z
+    ).normalize();
+
+    const sideDirection = new THREE.Vector3(
+      pinkyBase.x - middleBase.x,
+      pinkyBase.y - middleBase.y,
+      pinkyBase.z - middleBase.z
+    ).normalize();
+
+    // Calculer le vecteur vertical (perpendiculaire à middleDirection et sideDirection)
+    const upVector = new THREE.Vector3().crossVectors(
+      middleDirection,
+      sideDirection
+    ).normalize();
+
+    // Inverser les directions pour la main gauche si nécessaire
+    if (isLeftHand) {
+      upVector.multiplyScalar(-1);
+    }
+
+    // Créer une matrice de rotation à partir de ces directions
+    const rotationMatrix = new THREE.Matrix4();
+    rotationMatrix.makeBasis(sideDirection, middleDirection, upVector);
+
+    // Convertir en quaternion
+    const quaternion = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix);
+
+    // Appliquer un lissage
+    wristBone.quaternion.slerp(quaternion, 0.3);
+  }
+
+  private updateFingers(landmarks: any, isLeftHand: boolean) {
+    const prefix = isLeftHand ? 'left' : 'right';
+
+    // Mettre à jour chaque articulation des doigts
+    for (let i = 1; i < 21; i++) {
+      const boneName = this.handBoneMap.get(`${prefix}_${i}`);
+      if (!boneName) continue;
+
+      const bone = this.skeleton.getBoneByName(boneName);
+      if (!bone) continue;
+
+      // Trouver les points de repère parent et enfant pour calculer l'orientation de l'articulation
+      const currentLandmark = landmarks[i];
+      let parentIndex = this.getParentLandmarkIndex(i);
+      let childIndex = this.getChildLandmarkIndex(i);
+
+      if (parentIndex === null || childIndex === null) continue;
+
+      const parentLandmark = landmarks[parentIndex];
+      const childLandmark = landmarks[childIndex];
+
+      // Calculer la rotation de l'articulation
+      this.updateJointRotation(bone, parentLandmark, currentLandmark, childLandmark, isLeftHand);
+    }
+  }
+
+  // Obtenir l'indice du point de repère parent pour un point de repère donné
+  private getParentLandmarkIndex(index: number): number | null {
+    // Hiérarchie des points de repère de la main dans MediaPipe:
+    // - Le poignet (0) est la racine
+    // - Chaque doigt a une base qui se connecte au poignet
+    // - Chaque articulation se connecte à l'articulation précédente
+    const parentMap: { [key: number]: number } = {
+      // Pouce
+      1: 0,  // CMC se connecte au poignet
+      2: 1,  // MCP se connecte à CMC
+      3: 2,  // IP se connecte à MCP
+      4: 3,  // TIP se connecte à IP
+
+      // Index
+      5: 0,  // MCP se connecte au poignet
+      6: 5,  // PIP se connecte à MCP
+      7: 6,  // DIP se connecte à PIP
+      8: 7,  // TIP se connecte à DIP
+
+      // Majeur
+      9: 0,   // MCP se connecte au poignet
+      10: 9,  // PIP se connecte à MCP
+      11: 10, // DIP se connecte à PIP
+      12: 11, // TIP se connecte à DIP
+
+      // Annulaire
+      13: 0,  // MCP se connecte au poignet
+      14: 13, // PIP se connecte à MCP
+      15: 14, // DIP se connecte à PIP
+      16: 15, // TIP se connecte à DIP
+
+      // Auriculaire
+      17: 0,  // MCP se connecte au poignet
+      18: 17, // PIP se connecte à MCP
+      19: 18, // DIP se connecte à PIP
+      20: 19, // TIP se connecte à DIP
+    };
+
+    return parentMap[index] !== undefined ? parentMap[index] : null;
+  }
+
+  private readonly fingerDefinitions = [
+    {
+      name: 'Thumb',
+      root: 1,
+      connections: [
+        { parent: 0, child: 1 },
+        { parent: 1, child: 2 },
+        { parent: 2, child: 3 },
+        { parent: 3, child: 4 }
+      ]
+    },
+    {
+      name: 'Index',
+      root: 5,
+      connections: [
+        { parent: 0, child: 5 },
+        { parent: 5, child: 6 },
+        { parent: 6, child: 7 },
+        { parent: 7, child: 8 }
+      ]
+    },
+    {
+      name: 'Middle',
+      root: 9,
+      connections: [
+        { parent: 0, child: 9 },
+        { parent: 9, child: 10 },
+        { parent: 10, child: 11 },
+        { parent: 11, child: 12 }
+      ]
+    },
+    {
+      name: 'Ring',
+      root: 13,
+      connections: [
+        { parent: 0, child: 13 },
+        { parent: 13, child: 14 },
+        { parent: 14, child: 15 },
+        { parent: 15, child: 16 }
+      ]
+    },
+    {
+      name: 'Pinky',
+      root: 17,
+      connections: [
+        { parent: 0, child: 17 },
+        { parent: 17, child: 18 },
+        { parent: 18, child: 19 },
+        { parent: 19, child: 20 }
+      ]
+    }
+  ];
+
+  private getChildLandmarkIndex(index: number): number | null {
+    // For end points, there's no child
+    if (index === 4 || index === 8 || index === 12 || index === 16 || index === 20) {
+      return null;
+    }
+
+    // Find the connection where the current index is the parent
+    for (const finger of this.fingerDefinitions) {
+      for (const connection of finger.connections) {
+        if (connection.parent === index) {
+          return connection.child;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private updateJointRotation(
+    bone: THREE.Bone,
+    parentLandmark: any,
+    currentLandmark: any,
+    childLandmark: any,
+    isLeftHand: boolean
+  ) {
+    // Créer des vecteurs pour l'orientation
+    const parentToCurrentVector = new THREE.Vector3(
+      currentLandmark.x - parentLandmark.x,
+      currentLandmark.y - parentLandmark.y,
+      currentLandmark.z - parentLandmark.z
+    ).normalize();
+
+    let currentToChildVector;
+
+    if (childLandmark) {
+      // Si nous avons un point de repère enfant, utilisez-le pour déterminer la direction
+      currentToChildVector = new THREE.Vector3(
+        childLandmark.x - currentLandmark.x,
+        childLandmark.y - currentLandmark.y,
+        childLandmark.z - currentLandmark.z
+      ).normalize();
+    } else {
+      // Pour les points d'extrémité, continuez la direction depuis le parent
+      currentToChildVector = parentToCurrentVector.clone();
+    }
+
+    // Calculer un vecteur normal au plan défini par les deux vecteurs
+    const normalVector = new THREE.Vector3().crossVectors(
+      parentToCurrentVector,
+      currentToChildVector
+    ).normalize();
+
+    // Si le vecteur normal est de longueur nulle (vecteurs colinéaires), utilisez une solution de secours
+    if (normalVector.length() < 0.001) {
+      // Trouver un vecteur perpendiculaire à parentToCurrentVector
+      normalVector.set(1, 0, 0);
+      if (Math.abs(parentToCurrentVector.dot(normalVector)) > 0.9) {
+        normalVector.set(0, 1, 0);
+      }
+      normalVector.crossVectors(parentToCurrentVector, normalVector).normalize();
+    }
+
+    // Créer une matrice de rotation
+    const rotationMatrix = new THREE.Matrix4();
+
+    // Définir les axes en fonction des vecteurs capturés
+    const xAxis = currentToChildVector;
+    const yAxis = new THREE.Vector3().crossVectors(normalVector, xAxis).normalize();
+    const zAxis = normalVector;
+
+    // Ajuster pour l'orientation de la main
+    if (isLeftHand) {
+      zAxis.multiplyScalar(-1);
+    }
+
+    // Définir la matrice de rotation
+    rotationMatrix.makeBasis(xAxis, yAxis, zAxis);
+
+    // Convertir en quaternion
+    const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(rotationMatrix);
+
+    // Appliquer un lissage pour un mouvement naturel
+    bone.quaternion.slerp(targetQuaternion, 0.2);
+  }
+
+  // Animation loop
+  private animate = () => {
+    this.ngZone.runOutsideAngular(() => {
+      const loop = () => {
+        requestAnimationFrame(loop);
+
+        // Mise à jour du mixer d'animation
+        const delta = this.clock.getDelta();
+        if (this.mixer) {
+          this.mixer.update(delta);
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      };
+      loop();
+    });
+  }
+
+  loadHDR(hdrUrl: string) {
+    new RGBELoader()
+      .load(
+        hdrUrl,
+        (texture) => {
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          this.scene.background = texture;
+          this.scene.environment = texture;
+        },
+        undefined,
+        (error) => {
+          console.error('Erreur de chargement HDR:', error);
+        }
+      );
+  }
+
+  // Activer/désactiver le mode debug
+  public toggleDebugMode() {
+    this.debugMode = !this.debugMode;
+
+    // Basculer la visibilité des objets de débogage
+    this.debugObjects.forEach(obj => {
+      obj.visible = this.debugMode;
+    });
+
+    console.log(`Mode debug ${this.debugMode ? 'activé' : 'désactivé'}`);
+  }
+}
+

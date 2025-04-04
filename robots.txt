@@ -1,0 +1,3 @@
+User-Agent: *
+Disallow:
+Sitemap: https://www.cognitiex.com/py/sitemap.xml

@@ -1,0 +1,57 @@
+<header [class.sticky]="isSticky">
+  <nav class="navbar">
+    <div class="logo">
+      <img src="logo.jpg" alt="Logo" />
+    </div>
+    <div class="menu-icon" (click)="toggleMenu()" aria-label="Menu">
+      &#9776;
+    </div>
+    <div class="nav-items" [class.active]="menuActive">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMenu()">Home</a>
+
+      <a routerLink="/liste" routerLinkActive="active" (click)="toggleMenu()">List</a>
+      <a routerLink="/register" routerLinkActive="active" (click)="toggleMenu()">Register</a>
+      <a routerLink="/cart" routerLinkActive="active" (click)="toggleMenu()">
+        <i class="fa fa-shopping-cart"></i> Cart (<span class="cart-list">{{ getTotalItemCount() }}</span>)
+      </a>
+    </div>
+  </nav>
+</header>
+
+<router-outlet />
+<footer>
+  <div class="footer">
+    <div class="footer-column">
+      <div class="footer-logo">
+        <img src="logo.jpg" alt="Logo" />
+      </div>
+      <ul class="social-links">
+        <li><a href="#"><img src="Facebook.png" class="fab fa-facebook"/></a></li>
+        <li><a href="#"><img src="LinkedIn.png" class="fab fa-linkedin"/></a></li>
+        <li><a href="#"><img src="Instagram.png" class="fab fa-instagram"/></a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Our Services</h3>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Service</a></li>
+        <li><a href="#">Work</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Get In Touch</h3>
+      <p>Address: Cité El Menezeh 2, Kalaa Sghira, Maison 216, Sousse, Tunisie</p>
+      <p>Phone: +216 52920993</p>
+      <p>Email: <a href="mailto:mohamedaimenhec&#64;gmail.com">mohamedaimenhec&#64;gmail.com</a></p>
+      <p>Website: <a href="https://tetesss.pythonanywhere.com/">Visit Here</a></p>
+    </div>
+  </div>
+  <div class="footer-line">
+    <p>© 2025 All Rights Reserved</p>
+  </div>
+</footer>
+
+<app-chat />
+
+

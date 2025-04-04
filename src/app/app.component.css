@@ -1,0 +1,246 @@
+/* Navbar Styling */
+.navbar {
+  width: 90%;
+  background-color: #1c2838;
+  border: 3px solid #56b54e;
+  border-radius: 15px;
+  padding: 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 50px;
+  position: absolute;
+  top: 10px;
+  right: 0;
+  z-index: 1;
+}
+
+/* Logo */
+.logo img {
+  height: 50px; /* Ajuste la taille du logo */
+  border-radius: 10px;
+  padding: 0 0 0 50px;
+}
+
+/* Navbar Items */
+.nav-items {
+  display: flex;
+  gap: 20px;
+}
+
+  .nav-items a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 15px;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+    .nav-items a:hover {
+      color: #56b54e;
+    }
+    /* Flèche sous l'élément actif */
+    .nav-items a.active::after {
+      content: "";
+      position: absolute;
+      bottom: -8px; /* Positionne la flèche juste sous l'élément */
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg); /* Tourne la flèche vers le haut */
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid #1c2838; /* Couleur de la flèche */
+    }
+
+    /* Applique la bordure verte directement autour de la flèche */
+    .nav-items a.active::before {
+      content: "";
+      position: absolute;
+      bottom: -10px; /* Positionne légèrement sous la flèche */
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg);
+      width: 0;
+      height: 0;
+      border-left: 17px solid transparent; /* Augmente la taille de la flèche verte */
+      border-right: 17px solid transparent; /* Augmente la taille de la flèche verte */
+      border-top: 17px solid #56b54e;
+    }
+.menu-icon{
+    color:white;
+    padding:0 20px 0 0;
+}
+/* Footer Styling */
+.footer {
+  background-color: #1c2838;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 30px 50px;
+  border: 3px solid #71c74c; /* Bordure autour du footer */
+}
+
+  .footer i {
+    padding: 0 15px 0 0;
+  }
+
+.footer-column {
+  flex: 1;
+}
+
+.footer-logo img {
+  height: 150px;
+  padding: 0 0 0 35px;
+}
+
+.social-links {
+  list-style-type: none;
+  padding: 0;
+}
+
+  .social-links li {
+    display: inline-block;
+    margin-right: 15px;
+  }
+
+  .social-links a {
+    color: white;
+    font-size: 24px;
+    transition: color 0.3s ease;
+  }
+
+    .social-links a:hover {
+      color: #56b54e;
+    }
+
+.footer-column h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.footer-column ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+  .footer-column ul li {
+    margin: 8px 0;
+  }
+
+    .footer-column ul li a {
+      color: white;
+      text-decoration: none;
+    }
+
+      .footer-column ul li a:hover {
+        color: #56b54e;
+      }
+
+.footer-column p {
+  font-size: 14px;
+}
+
+  .footer-column p a {
+    color: #56b54e;
+    text-decoration: none;
+  }
+
+    .footer-column p a:hover {
+      text-decoration: underline;
+    }
+
+/* Ligne de bas de page */
+.footer-line {
+  text-align: center;
+  width: 100%;
+  margin-top: -55px;
+  position: relative;
+}
+
+  .footer-line p {
+    font-size: 16px;
+    color: #56b54e;
+  }
+.menu-icon {
+  display: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navbar {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    padding: 10px;
+  }
+
+  .logo img {
+    height: 40px;
+    padding-left: 20px;
+  }
+
+  .nav-items {
+    gap: 10px;
+  }
+
+    .nav-items a {
+      font-size: 16px;
+      padding: 8px 12px;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-items {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: #333;
+    width: 200px;
+    padding: 10px;
+  }
+
+    .nav-items.active {
+      display: flex;
+    }
+}
+@media (max-width: 540px) {
+  .navbar {
+    padding: 5px;
+  }
+
+  .logo img {
+    height: 35px;
+  }
+
+  .nav-items a {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .footer-column {
+    margin-bottom: 15px;
+  }
+
+  .footer-logo img {
+    height: 100px;
+  }
+  .footer-line{
+      margin-top:-20px;
+  }
+}

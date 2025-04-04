@@ -1,0 +1,39 @@
+<div>
+  <h2>Créer une entreprise</h2>
+  <form [formGroup]="companyForm" (ngSubmit)="isEditing ? updateCompany() : createCompany()">
+    <label for="name">Nom :</label>
+    <input id="name" formControlName="name" required>
+
+    <label for="subscription">Type d'abonnement :</label>
+    <select id="subscription" formControlName="subscription">
+      <option *ngFor="let type of subscriptionTypes" [value]="type">{{ type }}</option>
+    </select>
+
+    <label for="subscriptionStartDate">Date de début :</label>
+    <input type="date" id="subscriptionStartDate" formControlName="subscriptionStartDate" required>
+
+    <label for="subscriptionEndDate">Date de fin :</label>
+    <input type="date" id="subscriptionEndDate" formControlName="subscriptionEndDate" required>
+
+    <button type="submit">{{ isEditing ? 'Mettre à jour' : 'Créer' }}</button>
+  </form>
+</div>
+
+<div *ngFor="let company of companies">
+  <h3>{{ company.name }}</h3>
+  <button *ngIf="company.id !== undefined"
+          (click)="viewSupplies(company.id)"
+          [disabled]="!company.id">
+    Voir les Supplies
+  </button>
+  <button (click)="editCompany(company)">Modifier</button>
+  <button (click)="deleteCompany(company.id)">Supprimer</button>
+  <button (click)="generateAccessLink(company.id!)">
+    Générer un lien d'invitation
+  </button>
+
+  <p>Lien d'accès : <a [href]="accessLink" target="_blank">{{ accessLink }}</a></p>
+
+  <h4>Utilisateurs avec accès :</h4>
+
+</div>
