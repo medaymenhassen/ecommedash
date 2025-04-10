@@ -51,7 +51,7 @@ public class OrderService {
     }
     
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
-    @Transactional
+    /*@Transactional
     public Order createOrderWithItems(User user, List<CartOrderItems> items) {
 
         Order order = new Order();
@@ -106,5 +106,5 @@ public class OrderService {
 
         return order;
     }
-
+*/
 }

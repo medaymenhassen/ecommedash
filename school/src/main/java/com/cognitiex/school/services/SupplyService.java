@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.cognitiex.school.models.Company;
 import com.cognitiex.school.models.CustomerOrder;
+import com.cognitiex.school.models.Product;
 import com.cognitiex.school.models.Supply;
 import com.cognitiex.school.repositories.CompanyRepository;
 import com.cognitiex.school.repositories.CustomerOrderRepositiory;
@@ -32,19 +33,19 @@ public class SupplyService {
         return supplyRepository.save(supply);
     }
 
-    // Mettre à jour un Supply existant
     @Transactional
-    public Supply updateSupply(Long id, Supply supplyDetails) {
-        Optional<Supply> existingSupply = supplyRepository.findById(id);
+    public Supply updateSupply(Supply supplyDetails) {
+        Optional<Supply> existingSupply = supplyRepository.findById(supplyDetails.getId());
         if (existingSupply.isPresent()) {
             Supply supply = existingSupply.get();
             supply.setName(supplyDetails.getName());
             supply.setEmail(supplyDetails.getEmail());
-            supply.setProduct(supplyDetails.getProduct());
             supply.setTotalAmt(supplyDetails.getTotalAmt());
-            return supplyRepository.save(supply);
+            List<Product> products = supply.getProduct();
+            List<Company> companies = supply.getCompanies();
+            return supplyRepository.save(supply);  // Enregistrement de l'entité mise à jour
         }
-        return null;
+        return null; // Si l'entité n'existe pas
     }
 
     // Supprimer un Supply par ID
@@ -63,9 +64,13 @@ public class SupplyService {
         return supplyRepository.findAll();
     }
 
-    // Récupérer un Supply par ID
-    public Supply getSupplyById(Long id) {
-        Optional<Supply> supply = supplyRepository.findById(id);
-        return supply.orElse(null);
+    public List<Supply> getSuppliesByCompanyId(Long companyId) {
+        return supplyRepository.findByCompanyId(companyId);
     }
+    public Optional<Supply> getSupplyById(Long id) {
+        return supplyRepository.findById(id);
+    }
+
+    
+
 }

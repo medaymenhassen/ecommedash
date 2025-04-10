@@ -4,16 +4,12 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Meta, Title } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../auth.service';
-import { MirrorComponent } from '../mirror/mirror.component';
-import { MecontactComponent } from '../mecontact/mecontact.component';
-import { SquatComponent } from '../squat/squat.component';
 import { DetectComponent } from '../detect/detect.component';
-import { GameComponent } from '../game/game.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, MirrorComponent, MecontactComponent, SquatComponent, DetectComponent, GameComponent],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule,DetectComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

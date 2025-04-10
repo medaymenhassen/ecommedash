@@ -1,56 +1,213 @@
-<div class="container">
-  <h2>Gestion des Supplies</h2>
+<h2>Créer ou modifier une Supply</h2>
+<form [formGroup]="supplyForm" (ngSubmit)="onSubmit()">
+  <label>Nom:</label>
+  <input formControlName="name" type="text" required />
 
-  <!-- Formulaire pour créer ou mettre à jour un Supply -->
-  <form [formGroup]="supplyForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="name">Nom:</label>
-      <input type="text" id="name" formControlName="name" class="form-control" required />
-    </div>
+  <label>Email:</label>
+  <input formControlName="email" type="email" required />
 
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input type="email" id="email" formControlName="email" class="form-control" required />
-    </div>
+  <label>Total Amount:</label>
+  <input formControlName="totalAmt" type="number" required />
 
-    <div class="form-group">
-      <label for="totalAmt">Montant Total:</label>
-      <input type="number" id="totalAmt" formControlName="totalAmt" class="form-control" required />
-    </div>
+  <button type="submit">
+    {{ selectedSupply ? 'Mettre à jour' : 'Créer' }} Supply
+  </button>
 
-    <button type="submit" class="btn btn-primary">
-      {{ selectedSupply ? 'Mettre à Jour' : 'Ajouter' }}
+</form>
+<h3>Produits</h3>
+
+<h3>Liste des Supplies</h3>
+<ul>
+  <li *ngFor="let supply of supplies">
+    {{ supply.name }} - {{ supply.totalAmt }}€
+    <button (click)="editSupply(supply)">Modifier</button>
+    <button (click)="deleteSupply(supply.id)">Supprimer</button>
+    <button *ngIf="supply.id !== undefined"
+            (click)="viewProduct(supply.id)"
+            [disabled]="!supply.id">
+      Voir les product
     </button>
-    <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="selectedSupply">
-      Annuler
-    </button>
-  </form>
+  </li>
+</ul>
 
-  <hr />
 
-  <!-- Liste des Supplies -->
-  <h3>Liste des Supplies</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Email</th>
-        <th>Montant Total</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let supply of supplies">
-        <td>{{ supply.id }}</td>
-        <td>{{ supply.name }}</td>
-        <td>{{ supply.email }}</td>
-        <td>{{ supply.totalAmt }}</td>
-        <td>
-          <button class="btn btn-info btn-sm" (click)="editSupply(supply)">Modifier</button>
-          <button class="btn btn-danger btn-sm" (click)="deleteSupply(supply.id)">Supprimer</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+
+
+
+
+
+
+
+
+<div *ngIf="supplies.length > 0; else noData">
+  <h3>Liste des fournisseurs</h3>
+  <div *ngFor="let supply of supplies" class="supply-card">
+    <h4>{{ supply.name }}</h4>
+    <p>Contact : {{ supply.email }}</p>
+    <div *ngIf="supply.products?.length">
+      <h5>Produits proposés :</h5>
+      <ul>
+        <li *ngFor="let product of supply.products">
+          {{ product.title }}
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
+
+<ng-template #noData>
+  <p class="info-message">Aucun fournisseur trouvé pour cette entreprise</p>
+</ng-template>
+
+
+<div class="supply-component">
+  <h2>Gestion des Fournitures</h2>
+
+  <!-- Liste des fournitures -->
+  <div *ngFor="let supply of supplies">
+    <div class="supply">
+      <h3>{{ supply.name }}</h3>
+      <p>{{supply.id}}</p>
+      <!-- Liste des produits pour chaque fourniture -->
+      <div *ngIf="supply.products && supply.products.length > 0; else noProducts">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>lifo</th>
+              <th>supply</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of supply.products">
+              <td>{{ product.title }}</td>
+              <td>{{ product.qte }}</td>
+              <td>{{ product.lifo }}</td>
+              <td>
+                <!-- Boutons pour vendre ou augmenter le stock -->
+                <button (click)="selectedProduct = product">Sélectionner</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noProducts>
+        <p>Aucun produit disponible pour cette fourniture.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Formulaire de gestion de stock -->
+  <div *ngIf="selectedProduct">
+    <h3>Gestion du produit : {{ selectedProduct.title }}</h3>
+    <form [formGroup]="productForm">
+      <!-- Quantité à vendre/ajouter -->
+      <div>
+        <label for="quantityToSell">Quantité</label>
+        <input id="quantityToSell"
+               formControlName="quantityToSell"
+               type="number"
+               [min]="1"
+               required />
+
+        <!-- Afficher une erreur si le contrôle est invalide -->
+        <div *ngIf="productForm.get('quantityToSell')?.invalid && productForm.get('quantityToSell')?.touched">
+          <span>La quantité est obligatoire et doit être supérieure à zéro.</span>
+        </div>
+      </div>
+
+      <!-- LIFO - Pas modifiable par l'utilisateur, mais récupéré de la base de données -->
+      <div>
+        <label for="lifo">Utiliser LIFO ?</label>
+        <input id="lifo"
+               formControlName="lifo"
+               type="checkbox"
+               [disabled]="true" /> <!-- LIFO est en lecture seule -->
+      </div>
+
+      <!-- Boutons pour vendre ou augmenter le stock -->
+      <div>
+        <button type="button" (click)="sellProduct()" [disabled]="!productForm.valid">Vendre</button>
+        <button type="button" (click)="increaseStock()" [disabled]="!productForm.valid">Ajouter au stock</button>
+      </div>
+    </form>
+
+  </div>
+
+
+
+
+
+
+
+  <div>
+    <h3>Historique des produits</h3>
+
+    <p>Somme totale des quantités : {{ totalQuantity }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Date</th>
+          <th>Quantité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let history of historyProducts">
+          <td>{{ history.product.title }}</td>
+          <td>{{ history.dateEvent }}</td>
+          <td>{{ history.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <label for="period-select">Choisissez une période :</label>
+    <select id="period-select" (change)="onPeriodChange($event)">
+      <option value="hour">Heure</option>
+      <option value="day" selected>Jour</option>
+      <option value="month">Mois</option>
+      <option value="quarter">Trimestre</option>
+      <option value="semester">Semestre</option>
+      <option value="year">Année</option>
+    </select>
+  </div>
+
+  <canvas #productChart></canvas>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="chart-column">
+    <h3>Fournisseurs - Produits avec quantité positive</h3>
+    <div *ngIf="getKeys(positiveSupplyData).length > 0" class="chart-wrapper">
+      <canvas #positiveSupplyChart></canvas>
+    </div>
+    <div *ngIf="getKeys(positiveSupplyData).length === 0" class="no-data">
+      Aucun fournisseur avec produits à quantité positive trouvé
+    </div>
+  </div>
+  <div class="chart-column">
+    <h3>Fournisseurs - Produits avec quantité négative ou nulle</h3>
+    <div *ngIf="getKeys(negativeSupplyData).length > 0" class="chart-wrapper">
+      <canvas #negativeSupplyChart></canvas>
+    </div>
+    <div *ngIf="getKeys(negativeSupplyData).length === 0" class="no-data">
+      Aucun fournisseur avec produits à quantité négative ou nulle trouvé
+    </div>
+  </div>

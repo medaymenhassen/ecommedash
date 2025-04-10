@@ -580,7 +580,7 @@ public class AuthenticationController {
     
     
 
-    @PostMapping("/attribut/create")
+    /*@PostMapping("/attribut/create")
     public ResponseEntity<?> createProductAttribute(
             @RequestPart("productAttribute") ProductAttribute productAttribute,
             @RequestParam("colorId") Long colorId,
@@ -588,8 +588,6 @@ public class AuthenticationController {
             @RequestParam("productId") Long productId,
             @RequestParam(value = "lengthId", required = false) Long lengthId,
             @RequestPart(value = "imagePath", required = false) MultipartFile imagePath,
-            @RequestPart(value = "texturePath", required = false) MultipartFile texturePath,
-            @RequestPart(value = "videoPath", required = false) MultipartFile videoPath,
             @RequestHeader("Authorization") String authHeader) {
 
         // Vérification du token JWT
@@ -625,8 +623,6 @@ public class AuthenticationController {
 
         // Gestion des fichiers
         handleFileUpload.handleFileUpload(imagePath, newAttribute::setImagePath, "image");
-        handleFileUpload.handleFileUpload(texturePath, newAttribute::setTexturePath, "texture");
-        handleFileUpload.handleFileUpload(videoPath, newAttribute::setVideoPath, "vidéo");
 
         // Sauvegarde du nouvel attribut
         ProductAttribute createdAttribute = productAttributeService.createProductAttribute(newAttribute);
@@ -688,9 +684,6 @@ public class AuthenticationController {
 
         // Gestion des fichiers
         handleFileUpload.handleFileUpload(imagePath, existingAttribute::setImagePath, "image");
-        handleFileUpload.handleFileUpload(texturePath, existingAttribute::setTexturePath, "texture");
-        handleFileUpload.handleFileUpload(videoPath, existingAttribute::setVideoPath, "vidéo");
-
         // Sauvegarde des modifications
         ProductAttribute updatedAttribute = productAttributeService.updateProductAttribute(existingAttribute);
         return ResponseEntity.ok(updatedAttribute);
@@ -779,7 +772,7 @@ public class AuthenticationController {
         // Supprimer l'attribut
         productAttributeService.deleteProductAttributeById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    }*/
 
     @Autowired
     private ShopAddressService shopAddressService;
@@ -893,7 +886,7 @@ public class AuthenticationController {
 
     @Autowired
     private CartOrderItemsService cartOrderItemsService;
-    
+    /*
     @PostMapping("/order/create")
     public ResponseEntity<?> addItemsToOrder(
             @Valid @RequestBody List<CartOrderItems> items,
@@ -922,7 +915,7 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erreur lors de l'ajout des éléments au panier: " + e.getMessage());
         }
-    }
+    }*/
     /*    @Autowired
     private AiService chatService;
 	        

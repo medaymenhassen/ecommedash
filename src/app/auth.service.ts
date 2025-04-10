@@ -30,21 +30,25 @@ export interface JwtPayload {
 // product.model.ts
 export interface Product {
   id?: number;
-  userId: number;
   title: string;
-  slug: string;
-  specs?: string;
-  status: boolean;
-  isFeatured: boolean;
-  created?: string;
-  updated?: string;
-  debut?: string;
-  fin?: string;
-  gltfPath?: string;
-  binPath?: string;
-  texturePath?: string;
-  category?: Category;
-  brand?: Brand;
+  description?: string;
+  sku: string;
+  lifo: boolean;
+  qte: number;
+  price: number;
+  categorie?: string;
+  marque?: string;
+  debut: string;
+  datePeremption?: string;
+  dateFabrication?: string;
+  lotNumber?: string;
+  codeBarre?: string;
+  stockMinimum?: number;
+  userId: number;
+  supplyId?: number;
+  costManufacturing: number;
+  costCommercialization: number;
+  imageUrl?: string;           // <--- Nouveau
 }
 
 export interface Category {
@@ -368,7 +372,7 @@ export class AuthService {
     return this.http.post<any>(`${this.baseUrl}/submit`, contact);
   }
 
-
+  /*
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.baseUrl}/products/user`, {
       headers: this.getHeaders()
@@ -499,7 +503,7 @@ export class AuthService {
     });
     return this.http.post<Category>(`${this.baseUrl}/categories/create`, formData, { headers });
   }
-
+  */
   // Méthode pour obtenir toutes les catégories
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.baseUrl}/categories/liste`, {

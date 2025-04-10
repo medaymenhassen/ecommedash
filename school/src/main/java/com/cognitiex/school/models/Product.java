@@ -1,5 +1,6 @@
 package com.cognitiex.school.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,6 +19,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Product {
@@ -26,217 +30,288 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 1000000000)
+    // Informations de base
+    @Column(nullable = false, length = 255)
     private String title;
+    
+    @Column(length = 2000)
+    private String description;
+    
+    @Column(nullable = false, unique = true, length = 100)
+    private String sku;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "brand_id", nullable = false)
-    private Brand brand;
+    // Méthode de gestion du stock : false = FIFO, true = LIFO
+    @Column(nullable = false)
+    private Boolean lifo = false;
 
     @Column(nullable = false)
-    private String slug;
-
-    @Column(nullable = false, length = 1000000000)
-    private String specs;
-
+    private Integer qte;
+    
     @Column(nullable = false)
-    private Boolean status = false;
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than zero")
+    private BigDecimal price;
+    
+    // Catégorisation
+    @Column(length = 100)
+    private String categorie;
+    
+    @Column(length = 100)
+    private String marque;
 
+    // Dates pour la gestion générale et/ou périssable
     @Column(nullable = false)
-    private Boolean isFeatured = false;
+    private LocalDate debut; // Date d'entrée en stock
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created;
+    // Optionnel : champs pour produits périssables
+    @Column
+    private LocalDate datePeremption; // Peut rester null si non applicable
 
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updated;
+    @Column
+    private LocalDate dateFabrication; // Optionnel
 
-    @Column(nullable = false)
-    private LocalDate debut;
+    @Column(length = 50)
+    private String lotNumber; // Numéro de lot pour la traçabilité
 
-    @Column(nullable = false)
-    private LocalDate fin;
+    // Champs pour codes de gestion
+    @Column(length = 100)
+    private String codeBarre;
+    
+    // Informations sur le stockage
+    @Column
+    private Integer stockMinimum; // Pour déclencher une alerte en cas de stock faible
 
-    @Column(length = 500)
-    private String gltfPath;
-
-    @Column(length = 500)
-    private String binPath;
-
-    @Column(length = 500)
-    private String texturePath;
-
+    // Relations (clients divers)
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
     @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @JoinColumn(name = "supply_id")
+    private Supply supply;
+    
+    @Column(nullable = false)
+    @NotNull(message = "Manufacturing cost is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Manufacturing cost must be greater than zero")
+    private BigDecimal costManufacturing;
+    
+    @Column(nullable = false)
+    @NotNull(message = "Commercialization cost is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Commercialization cost must be greater than zero")
+    private BigDecimal costCommercialization;
+
+    
+    // URL image pour l'affichage dans le dashboard
+    @Column(length = 255)
+    private String imageUrl;
+
+    // Constructeurs
+    public Product() {
+        super();
+    }
 
 
-	public Product() {
+    public Product(Long id, String title, String description, String sku, Boolean lifo, Integer qte,
+			@NotNull(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than zero") BigDecimal price,
+			String categorie, String marque, LocalDate debut, LocalDate datePeremption, LocalDate dateFabrication,
+			String lotNumber, String codeBarre, Integer stockMinimum, User user, Supply supply,
+			@NotNull(message = "Manufacturing cost is required") @DecimalMin(value = "0.0", inclusive = false, message = "Manufacturing cost must be greater than zero") BigDecimal costManufacturing,
+			@NotNull(message = "Commercialization cost is required") @DecimalMin(value = "0.0", inclusive = false, message = "Commercialization cost must be greater than zero") BigDecimal costCommercialization,
+			String imageUrl) {
 		super();
-	}
-
-	public Product(String title, Category category, Brand brand, String slug, String specs, Boolean status, Boolean isFeatured, LocalDateTime created, LocalDateTime updated,
-			LocalDate debut, LocalDate fin, String gltfPath, String binPath, String texturePath, User user, Company company) {
-		super();
-		this.title = title;
-		this.category = category;
-		this.brand = brand;
-		this.slug = slug;
-		this.specs = specs;
-		this.status = status;
-		this.isFeatured = isFeatured;
-		this.created = created;
-		this.updated = updated;
-		this.debut = debut;
-		this.fin = fin;
-		this.gltfPath = gltfPath;
-		this.binPath = binPath;
-		this.texturePath = texturePath;
-		this.user = user;
-		this.company = company;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
 		this.id = id;
-	}
-	
-    // Ajouter getter et setter
-    public Company getCompany() { return company; }
-    public void setCompany(Company company) { this.company = company; }
-
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public Category getCategory() {
-		return category;
-	}
-
-	public void setCategory(Category category) {
-		this.category = category;
-	}
-
-	public Brand getBrand() {
-		return brand;
-	}
-
-	public void setBrand(Brand brand) {
-		this.brand = brand;
-	}
-
-	public String getSlug() {
-		return slug;
-	}
-
-	public void setSlug(String slug) {
-		this.slug = slug;
-	}
-
-	public String getSpecs() {
-		return specs;
-	}
-
-	public void setSpecs(String specs) {
-		this.specs = specs;
-	}
-
-	public Boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(Boolean status) {
-		this.status = status;
-	}
-
-	public Boolean getIsFeatured() {
-		return isFeatured;
-	}
-
-	public void setIsFeatured(Boolean isFeatured) {
-		this.isFeatured = isFeatured;
-	}
-
-	public LocalDateTime getCreated() {
-		return created;
-	}
-
-	public void setCreated(LocalDateTime created) {
-		this.created = created;
-	}
-
-	public LocalDateTime getUpdated() {
-		return updated;
-	}
-
-	public void setUpdated(LocalDateTime updated) {
-		this.updated = updated;
-	}
-
-	public LocalDate getDebut() {
-		return debut;
-	}
-
-	public void setDebut(LocalDate debut) {
+		this.description = description;
+		this.sku = sku;
+		this.lifo = lifo;
+		this.qte = qte;
+		this.price = price;
+		this.categorie = categorie;
+		this.marque = marque;
 		this.debut = debut;
-	}
-
-	public LocalDate getFin() {
-		return fin;
-	}
-
-	public void setFin(LocalDate fin) {
-		this.fin = fin;
-	}
-
-	public String getGltfPath() {
-		return gltfPath;
-	}
-
-	public void setGltfPath(String gltfPath) {
-		this.gltfPath = gltfPath;
-	}
-
-	public String getBinPath() {
-		return binPath;
-	}
-
-	public void setBinPath(String binPath) {
-		this.binPath = binPath;
-	}
-
-	public String getTexturePath() {
-		return texturePath;
-	}
-
-	public void setTexturePath(String texturePath) {
-		this.texturePath = texturePath;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
+		this.datePeremption = datePeremption;
+		this.dateFabrication = dateFabrication;
+		this.lotNumber = lotNumber;
+		this.codeBarre = codeBarre;
+		this.stockMinimum = stockMinimum;
 		this.user = user;
+		this.supply = supply;
+		this.costManufacturing = costManufacturing;
+		this.costCommercialization = costCommercialization;
+		this.imageUrl = imageUrl;
 	}
 
+
+	// Getters et setters pour chaque attribut
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // Exemple pour quelques getters/setters :
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public Boolean getLifo() {
+        return lifo;
+    }
+
+    public void setLifo(Boolean lifo) {
+        this.lifo = lifo;
+    }
+
+    public Integer getQte() {
+        return qte;
+    }
+
+    public void setQte(Integer qte) {
+        this.qte = qte;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public LocalDate getDebut() {
+        return debut;
+    }
+
+    public void setDebut(LocalDate debut) {
+        this.debut = debut;
+    }
+
+    public LocalDate getDatePeremption() {
+        return datePeremption;
+    }
+
+    public void setDatePeremption(LocalDate datePeremption) {
+        this.datePeremption = datePeremption;
+    }
+
+    public LocalDate getDateFabrication() {
+        return dateFabrication;
+    }
+
+    public void setDateFabrication(LocalDate dateFabrication) {
+        this.dateFabrication = dateFabrication;
+    }
+
+    public String getLotNumber() {
+        return lotNumber;
+    }
+
+    public void setLotNumber(String lotNumber) {
+        this.lotNumber = lotNumber;
+    }
+
+    public String getCodeBarre() {
+        return codeBarre;
+    }
+
+    public void setCodeBarre(String codeBarre) {
+        this.codeBarre = codeBarre;
+    }
+
+    public Integer getStockMinimum() {
+        return stockMinimum;
+    }
+
+    public void setStockMinimum(Integer stockMinimum) {
+        this.stockMinimum = stockMinimum;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Supply getSupply() {
+        return supply;
+    }
+
+    public void setSupply(Supply supply) {
+        this.supply = supply;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+
+	public String getCategorie() {
+		return categorie;
+	}
+
+
+	public void setCategorie(String categorie) {
+		this.categorie = categorie;
+	}
+
+
+	public String getMarque() {
+		return marque;
+	}
+
+
+	public void setMarque(String marque) {
+		this.marque = marque;
+	}
+
+
+	public BigDecimal getCostManufacturing() {
+		return costManufacturing;
+	}
+
+
+	public void setCostManufacturing(BigDecimal costManufacturing) {
+		this.costManufacturing = costManufacturing;
+	}
+
+
+	public BigDecimal getCostCommercialization() {
+		return costCommercialization;
+	}
+
+
+	public void setCostCommercialization(BigDecimal costCommercialization) {
+		this.costCommercialization = costCommercialization;
+	}
+    
     
 }

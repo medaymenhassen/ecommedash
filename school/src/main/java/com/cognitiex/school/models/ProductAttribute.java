@@ -53,12 +53,6 @@ public class ProductAttribute {
     @Column(nullable = true)
     private String imagePath;
 
-    @Column(nullable = true)
-    private String texturePath;
-
-    @Column(nullable = true)
-    private String videoPath;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -131,23 +125,6 @@ public class ProductAttribute {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
-
-    public String getTexturePath() {
-        return texturePath;
-    }
-
-    public void setTexturePath(String texturePath) {
-        this.texturePath = texturePath;
-    }
-
-    public String getVideoPath() {
-        return videoPath;
-    }
-
-    public void setVideoPath(String videoPath) {
-        this.videoPath = videoPath;
-    }
-
     
     public User getUser() {
 		return user;

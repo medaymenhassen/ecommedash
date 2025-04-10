@@ -9,13 +9,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cognitiex.school.models.Color;
 import com.cognitiex.school.models.Company;
+import com.cognitiex.school.models.Product;
 import com.cognitiex.school.models.Subscription;
+import com.cognitiex.school.models.Supply;
 import com.cognitiex.school.models.User;
 import com.cognitiex.school.repositories.CompanyRepository;
 import com.cognitiex.school.repositories.UserRepository;
@@ -45,6 +48,18 @@ public class CompanyService {
 
         return company;
     }
+    
+    public List<Company> getCompanyByIdList(List<Long> companiesIds) {
+        return companyRepository.findAllById(companiesIds);  // Utilisation de la méthode de Spring Data JPA pour récupérer les entreprises
+    }
+
+
+    public List<Supply> getSuppliesByCompanyIdList(Long companyId) {
+        return companyRepository.findAllByCompanyIdWithCompanies(companyId);  // Assurez-vous que le repository prend bien en compte l'association.
+    }
+
+    
+
         
     public LocalDateTime getTokenExpiry(Long companyId) {
         Company company = companyRepository.findById(companyId)
@@ -156,6 +171,11 @@ public class CompanyService {
         }
 
         return companies;
+    }
+
+
+    public List<Company> getCompanysBySupplyId(Long supplyId) {
+        return companyRepository.findBySupplyId(supplyId);
     }
 
 

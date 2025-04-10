@@ -5,18 +5,31 @@ import { jwtDecode } from "jwt-decode";
 import { isPlatformBrowser } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { AuthService, Product } from './auth.service';
+
+export class HistoryProduct {
+  id!: number;
+  product!: Product; // Assurez-vous que le modèle Product existe
+  supply!: Supply;   // Assurez-vous que le modèle Supply existe
+  message!: string;
+  dateEvent!: string; // Utilisez `string` pour les dates (format ISO)
+  quantity!: number;
+}
+
 export enum SubscriptionType {
   BASIC = 'BASIC',
   GOLD = 'GOLD',
   PREMIUM = 'PREMIUM'
 }
-export class Supply {
+
+export interface Supply {
   id?: number;
-  name!: string;
-  email!: string;
-  product?: Product;
-  totalAmt?: number;
+  name: string;
+  email: string;
+  totalAmt: number;
+  companiesIds?: number[];  // Ajout de la propriété
+  products?: Product[];      // Correction aussi ici
 }
+
 export interface Company {
   id?: number;
   name: string;
@@ -159,25 +172,25 @@ export class UsercompanyService {
   }
 
 
-  // CREATE
-  createSupply(supply: Supply): Observable<Supply> {
-    return this.http.post<Supply>(`${this.baseUrl}/supply`, supply, {
-      headers: this.authService.getHeadersWithoutContentType()
+  createSupply(formData: FormData): Observable<Supply> {
+    return this.http.post<Supply>(`${this.baseUrl}/supply`, formData, {
+      headers: this.getHeaders()  // You can pass headers if needed, like Authorization
+    });
+  }
+  // UPDATE (with FormData)
+  updateSupply(id: number, formData: FormData): Observable<Supply> {
+    return this.http.put<Supply>(`${this.baseUrl}/supply/${id}`, formData, {
+      headers: this.getHeaders()  // Keep your authorization headers
     });
   }
 
-  // READ ALL
-  getAllSupplies(): Observable<Supply[]> {
-    return this.http.get<Supply[]>(`${this.baseUrl}/supply`, {
-      headers: this.authService.getHeadersWithoutContentType()
-    });
+  getSuppliesByCompanyId(companyId: number): Observable<Supply[]> {
+    return this.http.get<Supply[]>(`${this.baseUrl}/supply/filter/${companyId}`, {
+      headers: this.getHeaderswith(),  // You can pass headers if needed, like Authorization
+    })
+
   }
 
-  updateSupply(id: number, updateData: Partial<Supply>): Observable<Supply> {
-    return this.http.put<Supply>(`${this.baseUrl}/supply/${id}`, updateData, {
-      headers: this.getHeaders(), // Garder les headers
-    });
-  }
 
   // DELETE
   deleteSupply(id: number): Observable<void> {
@@ -185,4 +198,68 @@ export class UsercompanyService {
       headers: this.getHeaders()
     });
   }
+
+
+
+
+  createProduct(formData: FormData): Observable<Product> {
+    return this.http.post<Product>(`${this.baseUrl}/products/create`, formData, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Mettre à jour un produit
+  updateProduct(id: number, formData: FormData): Observable<Product> {
+    return this.http.put<Product>(`${this.baseUrl}/products/update/${id}`, formData, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Supprimer un produit
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/products/delete/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Récupérer les produits par entreprise
+  getProductsByCompany(supplyId: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.baseUrl}/products/filter/${supplyId}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateProductQuantity(
+    productId: string,
+    title: string,
+    quantityToUpdate: number,
+    lifo: boolean,
+    supplyId: number
+  ): Observable<any> {
+    const params = {
+      specificProductId: productId, // Nouveau paramètre
+      quantityToUpdate: quantityToUpdate.toString(),
+      title: title,
+      lifo: lifo.toString(),
+      supplyId: supplyId
+    };
+    console.table(params);
+    return this.http.put<any>(`${this.baseUrl}/products/update-quantity`, null, {
+      headers: this.getHeaders(),
+      params: params
+    });
+  }
+
+  getCompanysBySupply(supplyId: number): Observable<Company[]> {
+    return this.http.get<Company[]>(`${this.baseUrl}/companysupply/filter/${supplyId}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getGrapgicsBySupply(supplyId: number): Observable<HistoryProduct[]> {
+    return this.http.get<HistoryProduct[]>(`${this.baseUrl}/products/graphic/${supplyId}`, {
+      headers: this.getHeaders()
+    });
+  }
+
 }

@@ -5,12 +5,11 @@ import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { CartOrderItem } from './auth.service';
 import { map } from 'rxjs';
-import { ChatComponent } from './chat/chat.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, RouterModule, ChatComponent],
+  imports: [RouterOutlet, CommonModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })

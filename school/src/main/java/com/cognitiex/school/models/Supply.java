@@ -16,10 +16,9 @@ public class Supply {
 
     @Column(nullable = false)
     private String name;
-    
 
     @Column(nullable = false)
-    private String Email;
+    private String email;
 
     @ManyToMany
     @JoinTable(
@@ -28,66 +27,67 @@ public class Supply {
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Product> product = new ArrayList<>();
-    
+
     @Column(nullable = false)
     @NotNull(message = "totalAmt is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "total amt must be greater than zero")
     private BigDecimal totalAmt;
 
-    // Constructeurs
-    public Supply() {}
+    @ManyToMany
+    @JoinTable(
+        name = "company_supply",
+        joinColumns = @JoinColumn(name = "supply_id"),
+        inverseJoinColumns = @JoinColumn(name = "company_id")
+    )
+    private List<Company> companies = new ArrayList<>();
 
-	public Supply(String name, String email) {
-		this.name = name;
-		this.Email = email;
-	}
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-	public Supply(String name, String email, List<Product> product,
-			@NotNull(message = "totalAmt is required") @DecimalMin(value = "0.0", inclusive = false, message = "total amt must be greater than zero") BigDecimal totalAmt) {
-		this.name = name;
-		this.Email = email;
-		this.product = product;
-		this.totalAmt = totalAmt;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getEmail() {
-		return Email;
-	}
+    public List<Product> getProduct() {
+        return product;
+    }
 
-	public void setEmail(String email) {
-		Email = email;
-	}
+    public void setProduct(List<Product> product) {
+        this.product = product;
+    }
 
-	public List<Product> getProduct() {
-		return product;
-	}
+    public BigDecimal getTotalAmt() {
+        return totalAmt;
+    }
 
-	public void setProduct(List<Product> product) {
-		this.product = product;
-	}
+    public void setTotalAmt(BigDecimal totalAmt) {
+        this.totalAmt = totalAmt;
+    }
 
-	public BigDecimal getTotalAmt() {
-	    return totalAmt;
-	}
+    public List<Company> getCompanies() {
+        return companies;
+    }
 
-	public void setTotalAmt(BigDecimal totalAmt) {
-	    this.totalAmt = totalAmt;
-	}
-	
+    public void setCompanies(List<Company> companies) {
+        this.companies = companies;
+    }
 }
+

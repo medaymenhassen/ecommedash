@@ -69,7 +69,7 @@ In my opinion, a good pizza has a crispy crust, plenty of cheese, and a generous
   ngOnInit(): void {
     this.loadColors();
     this.loadSizes();
-    this.loadProducts();
+    //this.loadProducts();
     this.loadLengths();
     this.loadProductAttributes();
     this.attributForm.get('text')?.valueChanges.subscribe(value => {
@@ -91,7 +91,7 @@ In my opinion, a good pizza has a crispy crust, plenty of cheese, and a generous
       (data: Size[]) => (this.sizes = data),
       (error) => console.error('Erreur lors du chargement des tailles', error)
     );
-  }
+  }/*
 
   loadProducts(): void {
     this.authService.getProducts().subscribe(
@@ -100,7 +100,7 @@ In my opinion, a good pizza has a crispy crust, plenty of cheese, and a generous
       },
       (error) => console.error('Erreur lors du chargement des produits', error)
     );
-  }
+  }*/
 
   loadLengths(): void {
     this.authService.getLength().subscribe(

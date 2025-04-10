@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
   padding: 100px 20px;
-  background-color: #f4f4f4;
+  background-color: #151e2b;
 }
 
 /* Conteneur des formulaires */
@@ -17,6 +17,8 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  border-style: solid;
+  border-color: #56b54e;
 }
 
 /* Boutons de bascule */
@@ -34,13 +36,13 @@
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     color: #fff;
-    background-color: #3a6cf4;
+    background-color: #56b54e;
     border-radius: 5px 5px 0 0;
     margin: 0 5px;
   }
 
     .auth-toggle button.active {
-      background-color: #235bf6;
+      background-color: #56b54e;
     }
 
 /* Conteneur des formulaires */
@@ -96,7 +98,7 @@
 
 /* Boutons */
 .btn {
-  background-color: #3a6cf4;
+  background-color: #56b54e;
   color: #fff;
   padding: 12px 20px;
   border: none;
@@ -152,7 +154,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #3a6cf4;
+  color: #56b54e;
   font-size: 1em;
 }
 
