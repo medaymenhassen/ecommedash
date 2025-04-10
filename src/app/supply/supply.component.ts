@@ -154,8 +154,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
           }
         );
         this.getHistoryBySupply(supply.id);
-        this.classifyProductsByQuantity();
-
+        
         // Récupérer l'historique après les produits
         this.getHistoryBySupply(supply.id);
       }
@@ -308,9 +307,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     }
 
     this.createHistoryProductChart();
-    if (this.supplies.length > 0 && this.supplies.some(s => s.products && s.products.length > 0)) {
-      this.classifyProductsByQuantity();
-    }
+    
   }
 
   private getHistoryBySupply(supplyId: number): void {
@@ -328,6 +325,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
 
         this.historyProducts = history;
         this.calculateTotalQuantity();
+        this.logPositiveAndNegativeQuantities();
 
         if (this.productChartRef) {
           this.createHistoryProductChart();
@@ -393,24 +391,6 @@ export class SupplyComponent implements OnInit, AfterViewInit {
 
 
 
-  // Propriétés pour stocker les données classées
-  positiveQuantityProducts: any[] = [];
-  negativeQuantityProducts: any[] = [];
-  positiveSupplyData: any = {};
-  negativeSupplyData: any = {};
-
-  @ViewChild('positiveProductChart') positiveProductChartRef!: ElementRef;
-  @ViewChild('negativeProductChart') negativeProductChartRef!: ElementRef;
-  @ViewChild('positiveSupplyChart') positiveSupplyChartRef!: ElementRef;
-  @ViewChild('negativeSupplyChart') negativeSupplyChartRef!: ElementRef;
-
-
-  private positiveProductChart!: Chart;
-  private negativeProductChart!: Chart;
-  private positiveSupplyChart!: Chart;
-  private negativeSupplyChart!: Chart;
-
-
   createHistoryProductChart(period: 'hour' | 'day' | 'month' | 'quarter' | 'semester' | 'year' = 'day') {
     if (!this.productChartRef?.nativeElement) {
       console.error('Référence au canvas manquante');
@@ -449,290 +429,31 @@ export class SupplyComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  private classifyProductsByQuantity(): void {
-    // Réinitialiser les données
-    this.positiveQuantityProducts = [];
-    this.negativeQuantityProducts = [];
-    this.positiveSupplyData = {};
-    this.negativeSupplyData = {};
-
-    this.historyProducts.forEach(historyEntry => {
-      if (!historyEntry.supply) return; // Sécurité
-
-      const entryWithAbs = {
-        ...historyEntry,
-        absQte: Math.abs(historyEntry.quantity),
-      };
-
-      const supplyName = historyEntry.supply.name;
-
-      if (historyEntry.quantity > 0) {
-        this.positiveQuantityProducts.push(entryWithAbs);
-        this.positiveSupplyData[supplyName] =
-          (this.positiveSupplyData[supplyName] || 0) + entryWithAbs.absQte;
-      } else {
-        this.negativeQuantityProducts.push(entryWithAbs);
-        this.negativeSupplyData[supplyName] =
-          (this.negativeSupplyData[supplyName] || 0) + entryWithAbs.absQte;
-      }
-    });
-
-    this.createAllPieCharts();
-  }
-
-
-  // À ajouter à ngAfterViewInit() ou appeler après le chargement des données
-  /*private createAllPieCharts(): void {
-    // Détruire les graphiques existants si nécessaire
-    this.destroyChart(this.positiveProductChart);
-    this.destroyChart(this.negativeProductChart);
-    this.destroyChart(this.positiveSupplyChart);
-    this.destroyChart(this.negativeSupplyChart);
-
-    // Créer les diagrammes
-    this.createPositiveProductChart();
-    this.createNegativeProductChart();
-    this.createPositiveSupplyChart();
-    this.createNegativeSupplyChart();
-  }*/
-
-  private createPositiveProductChart(): void {
-    if (!this.positiveProductChartRef?.nativeElement || this.positiveQuantityProducts.length === 0) {
-      console.warn('Canvas manquant ou pas de données positives');
-      return;
-    }
-
-    // Préparer les données
-    const labels = this.positiveQuantityProducts.map(p => p.title);
-    const data = this.positiveQuantityProducts.map(p => p.absQte);
-
-    // Créer le graphique
-    this.positiveProductChart = new Chart(this.positiveProductChartRef.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: this.generateColors(data.length),
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Produits avec quantité positive'
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const total = context.dataset.data.reduce((sum: any, val: any) => sum + val, 0);
-                const value = context.raw as number;
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  private createNegativeProductChart(): void {
-    if (!this.negativeProductChartRef?.nativeElement || this.negativeQuantityProducts.length === 0) {
-      console.warn('Canvas manquant ou pas de données négatives');
-      return;
-    }
-
-    // Préparer les données
-    const labels = this.negativeQuantityProducts.map(p => p.title);
-    const data = this.negativeQuantityProducts.map(p => p.absQte);
-
-    // Créer le graphique
-    this.negativeProductChart = new Chart(this.negativeProductChartRef.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: this.generateColors(data.length),
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Produits avec quantité négative ou nulle'
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const total = context.dataset.data.reduce((sum: any, val: any) => sum + val, 0);
-                const value = context.raw as number;
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
 
   getKeys = Object.keys; // Déclaration dans la classe
 
-  /*private createPositiveSupplyChart(): void {
-    if (!this.positiveSupplyChartRef?.nativeElement || Object.keys(this.positiveSupplyData).length === 0) {
-      console.warn('Canvas manquant ou pas de données de fournisseurs positives');
+
+  positiveQuantityProducts: { id: number; quantity: number }[] = [];
+  negativeQuantityProducts: { id: number; quantity: number }[] = [];
+  private logPositiveAndNegativeQuantities(): void {
+    if (!this.historyProducts || this.historyProducts.length === 0) {
+      console.warn('Aucun produit dans historyProducts.');
       return;
     }
 
-    // Préparer les données
-    const labels = Object.keys(this.positiveSupplyData);
-    const data = Object.values(this.positiveSupplyData);
+    // Extraire les quantités positives
+    const positiveQuantities = this.historyProducts
+      .filter(product => product.quantity > 0)
+      .map(product => product.quantity);
 
-    // Créer le graphique
-    this.positiveSupplyChart = new Chart(this.positiveSupplyChartRef.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: this.positiveQuantityProducts.map(p => p.title),
-        datasets: [{
-          data: this.positiveQuantityProducts.map(p => p.absQte), // number[]
-          backgroundColor: this.generateColors(data.length)
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Fournisseurs - Produits avec quantité positive'
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const total = context.dataset.data.reduce((sum: any, val: any) => sum + val, 0);
-                const value = context.raw as number;
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }*/
-  private createNegativeSupplyChart(): void {
-    if (!this.negativeSupplyChartRef?.nativeElement || Object.keys(this.negativeSupplyData).length === 0) return;
+    // Extraire les quantités négatives
+    const negativeQuantities = this.historyProducts
+      .filter(product => product.quantity < 0)
+      .map(product => product.quantity);
 
-    const labels = Object.keys(this.negativeSupplyData);
-    const data = Object.values(this.negativeSupplyData) as number[];
-
-    this.negativeSupplyChart = new Chart(this.negativeSupplyChartRef.nativeElement, {
-      type: 'pie' as const,
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: this.generateColors(data.length),
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Fournisseurs - Produits avec quantité négative ou nulle' },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = context.dataset.data.reduce((sum: number, val: number) => sum + val, 0);
-                const value = context.raw as number;
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
+    // Afficher dans la console
+    console.log('Quantités positives :', positiveQuantities);
+    console.log('Quantités négatives :', negativeQuantities);
   }
-
-  // Fonction utilitaire pour générer des couleurs
-  private generateColors(count: number): string[] {
-    const colors = [
-      '#4dc9f6', '#f67019', '#f53794', '#537bc4', '#acc236',
-      '#166a8f', '#00a950', '#58595b', '#8549ba', '#a6cee3',
-      '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c'
-    ];
-
-    // Si plus de couleurs sont nécessaires, les répéter
-    if (count > colors.length) {
-      return [...colors, ...Array(count - colors.length).fill('').map((_, i) => colors[i % colors.length])];
-    }
-
-    return colors.slice(0, count);
-  }
-
-
-  // Ajouter cette méthode pour détruire tous les graphiques
-  private destroyAllCharts(): void {
-    this.destroyChart(this.positiveProductChart);
-    this.destroyChart(this.negativeProductChart);
-    this.destroyChart(this.positiveSupplyChart);
-    this.destroyChart(this.negativeSupplyChart);
-
-  }
-
-  // Corriger createPositiveSupplyChart()
-  private createPositiveSupplyChart(): void {
-    if (!this.positiveSupplyChartRef?.nativeElement || Object.keys(this.positiveSupplyData).length === 0) return;
-
-    const labels = Object.keys(this.positiveSupplyData);
-    const data = Object.values(this.positiveSupplyData) as number[];
-
-    this.positiveSupplyChart = new Chart(this.positiveSupplyChartRef.nativeElement, {
-      type: 'pie' as const,
-      data: {
-        labels: labels, // Correction ici (avant : positiveQuantityProducts)
-        datasets: [{
-          data: data,
-          backgroundColor: this.generateColors(data.length),
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Fournisseurs - Produits avec quantité positive'
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = context.dataset.data.reduce((sum: number, val: number) => sum + val, 0);
-                const value = context.raw as number;
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // Modifier createAllPieCharts()
-  private createAllPieCharts(): void {
-    this.destroyAllCharts(); // Nouvelle méthode de nettoyage
-
-    this.createPositiveProductChart();
-    this.createNegativeProductChart();
-    this.createPositiveSupplyChart(); // Ajout manquant
-    this.createNegativeSupplyChart(); // Ajout manquant
-  }
-
+  
 }

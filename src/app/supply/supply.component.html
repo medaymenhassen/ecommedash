@@ -181,35 +181,3 @@
 
   <canvas #productChart></canvas>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <div class="chart-column">
-    <h3>Fournisseurs - Produits avec quantité positive</h3>
-    <div *ngIf="getKeys(positiveSupplyData).length > 0" class="chart-wrapper">
-      <canvas #positiveSupplyChart></canvas>
-    </div>
-    <div *ngIf="getKeys(positiveSupplyData).length === 0" class="no-data">
-      Aucun fournisseur avec produits à quantité positive trouvé
-    </div>
-  </div>
-  <div class="chart-column">
-    <h3>Fournisseurs - Produits avec quantité négative ou nulle</h3>
-    <div *ngIf="getKeys(negativeSupplyData).length > 0" class="chart-wrapper">
-      <canvas #negativeSupplyChart></canvas>
-    </div>
-    <div *ngIf="getKeys(negativeSupplyData).length === 0" class="no-data">
-      Aucun fournisseur avec produits à quantité négative ou nulle trouvé
-    </div>
-  </div>
-</div>
