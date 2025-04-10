@@ -154,9 +154,6 @@ export class SupplyComponent implements OnInit, AfterViewInit {
           }
         );
         this.getHistoryBySupply(supply.id);
-        
-        // Récupérer l'historique après les produits
-        this.getHistoryBySupply(supply.id);
       }
     });
   }
@@ -307,7 +304,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     }
 
     this.createHistoryProductChart();
-    
+    this.createPieCharts()
   }
 
   private getHistoryBySupply(supplyId: number): void {
@@ -376,32 +373,18 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     chart?.destroy();
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  createHistoryProductChart(period: 'hour' | 'day' | 'month' | 'quarter' | 'semester' | 'year' = 'day') {
+  createHistoryProductChart(period: 'hour' | 'day' | 'month' | 'quarter' | 'semester' | 'year' = 'day'): void {
     if (!this.productChartRef?.nativeElement) {
       console.error('Référence au canvas manquante');
       return;
     }
 
-    if (!this.historyProducts.length) {
-      console.error('Données manquantes pour créer le graphique');
+    if (!this.historyProducts || this.historyProducts.length === 0) {
+      console.error('Données manquantes pour créer le graphique principal ou les graphiques Pie.');
       return;
     }
 
+    // Crée le graphique linéaire (existant)
     this.destroyChart(this.historyChart);
 
     const historyData = this.historyProducts
@@ -428,32 +411,121 @@ export class SupplyComponent implements OnInit, AfterViewInit {
         }
       }
     });
+
+    // Crée les graphiques Pie
+    this.createPieCharts();
   }
 
   getKeys = Object.keys; // Déclaration dans la classe
 
 
-  positiveQuantityProducts: { id: number; quantity: number }[] = [];
-  negativeQuantityProducts: { id: number; quantity: number }[] = [];
+  // Données initiales
+  positiveQuantityProducts: { id: number; quantity: number; product: Product; supply: Supply }[] = [];
+  negativeQuantityProducts: { id: number; quantity: number; product: Product; supply: Supply }[] = [];
+
   private logPositiveAndNegativeQuantities(): void {
     if (!this.historyProducts || this.historyProducts.length === 0) {
       console.warn('Aucun produit dans historyProducts.');
       return;
     }
 
-    // Extraire les quantités positives
-    const positiveQuantities = this.historyProducts
-      .filter(product => product.quantity > 0)
-      .map(product => product.quantity);
+    this.positiveQuantityProducts = this.historyProducts.filter(product => product.quantity > 0);
+    this.negativeQuantityProducts = this.historyProducts.filter(product => product.quantity < 0);
 
-    // Extraire les quantités négatives
-    const negativeQuantities = this.historyProducts
-      .filter(product => product.quantity < 0)
-      .map(product => product.quantity);
+    console.log('Produits avec quantités positives :', this.positiveQuantityProducts);
+    console.log('Produits avec quantités négatives :', this.negativeQuantityProducts);
+  }
 
-    // Afficher dans la console
-    console.log('Quantités positives :', positiveQuantities);
-    console.log('Quantités négatives :', negativeQuantities);
+  // Fonctions utilitaires
+  private getUniqueSupplies(products: { supply: Supply }[]): string[] {
+    return [...new Set(products.map(p => p.supply.name))];
+  }
+
+  private getQuantitiesBySupply(products: { supply: Supply; quantity: number }[]): number[] {
+    return this.getUniqueSupplies(products).map(supplyName => {
+      return products
+        .filter(p => p.supply.name === supplyName)
+        .reduce((sum, p) => sum + Math.abs(p.quantity), 0);
+    });
+  }
+
+  private getUniqueProducts(products: { product: Product }[]): string[] {
+    return [...new Set(products.map(p => p.product.title))];
+  }
+
+  private getQuantitiesByProduct(products: { product: Product; quantity: number }[]): number[] {
+    return this.getUniqueProducts(products).map(productName => {
+      return products
+        .filter(p => p.product.title === productName)
+        .reduce((sum, p) => sum + Math.abs(p.quantity), 0);
+    });
   }
   
+
+  private pieCharts: { [key: string]: Chart } = {};
+
+
+  private createPieCharts(): void {
+    const salesBySupplyLabels = this.getUniqueSupplies(this.negativeQuantityProducts);
+    const salesBySupplyData = this.getQuantitiesBySupply(this.negativeQuantityProducts);
+
+    const purchasesBySupplyLabels = this.getUniqueSupplies(this.positiveQuantityProducts);
+    const purchasesBySupplyData = this.getQuantitiesBySupply(this.positiveQuantityProducts);
+
+    const salesByProductLabels = this.getUniqueProducts(this.negativeQuantityProducts);
+    const salesByProductData = this.getQuantitiesByProduct(this.negativeQuantityProducts);
+
+    const purchasesByProductLabels = this.getUniqueProducts(this.positiveQuantityProducts);
+    const purchasesByProductData = this.getQuantitiesByProduct(this.positiveQuantityProducts);
+
+    // Créer les graphiques
+    this.createPieChart('salesBySupplyChart', salesBySupplyLabels, salesBySupplyData, 'Ventes par fournisseur');
+    this.createPieChart('purchasesBySupplyChart', purchasesBySupplyLabels, purchasesBySupplyData, 'Achats par fournisseur');
+    this.createPieChart('salesByProductChart', salesByProductLabels, salesByProductData, 'Ventes par produit');
+    this.createPieChart('purchasesByProductChart', purchasesByProductLabels, purchasesByProductData, 'Achats par produit');
+  }
+
+  private createPieChart(canvasId: string, labels: string[], data: number[], title: string): void {
+    if (!labels?.length || !data?.length) {
+      console.warn(`Données manquantes pour le graphique "${title}".`);
+      return;
+    }
+
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) {
+      console.error(`Canvas avec l'ID ${canvasId} introuvable.`);
+      return;
+    }
+
+    // Détruire l'ancien graphique s'il existe
+    if (this.pieCharts[canvasId]) {
+      this.pieCharts[canvasId].destroy();
+    }
+
+    // Créer un nouveau graphique
+    this.pieCharts[canvasId] = new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          label: title,
+          data,
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: { display: true, text: title }
+        }
+      }
+    });
+  }
+
 }
