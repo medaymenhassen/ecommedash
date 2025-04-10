@@ -48,6 +48,7 @@
 /* Conteneur des formulaires */
 .form-container {
   position: relative;
+  color: #1c2838;
 }
 
 /* Boîte de formulaire */
@@ -66,7 +67,7 @@
 
   .logged-in-box h2 {
     margin-bottom: 20px;
-    color: #3a6cf4;
+    color: #1c2838;
   }
 
 /* Groupes d'inputs */
@@ -98,7 +99,7 @@
 
 /* Boutons */
 .btn {
-  background-color: #56b54e;
+  background-color: #1c2838;
   color: #fff;
   padding: 12px 20px;
   border: none;
@@ -106,11 +107,13 @@
   cursor: pointer;
   font-size: 1em;
   transition: background-color 0.3s ease;
+  border-style: solid;
+  border-color: #56b54e;
   width: 100%;
 }
 
   .btn:hover {
-    background-color: #235bf6;
+    background-color: #56b54e;
   }
 
 /* Bouton secondaire */

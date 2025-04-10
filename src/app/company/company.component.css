@@ -1,0 +1,47 @@
+.container {
+  padding: 120px 0 0 30px;
+  background-color: #151e2b;
+  color: azure;
+}
+
+h2 {
+  padding: 0 0 20px 0;
+}
+
+label {
+  padding: 0 20px 0 20px;
+}
+
+input {
+  border-style: solid;
+  border-color: #56b54e;
+}
+
+.companies {
+  padding: 20px 10px 0 30px;
+  background-color: #151e2b;
+  color: azure;
+}
+
+h3 {
+  padding: 0 0 20px 0;
+  color: #56b54e;
+  font-size:24px;
+}
+
+button {
+  padding: 0 20px 0 20px;
+  margin: 0 20px 20px 8px;
+  color: aliceblue;
+  background-color: #1c2838;
+  border-style: solid;
+  border-color: #56b54e;
+  border-radius: 8px;
+}
+h4 {
+  padding: 10px 0 30px 0;
+  font-size: 18px;
+}
+p {
+  font-size: 18px;
+}

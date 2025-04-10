@@ -78,7 +78,7 @@
   display: flex;
   justify-content: space-between;
   gap: 30px;
-  padding: 30px 50px;
+  padding: 60px 60px;
   border: 3px solid #71c74c; /* Bordure autour du footer */
 }
 
@@ -88,6 +88,7 @@
 
 .footer-column {
   flex: 1;
+
 }
 
 .footer-logo img {

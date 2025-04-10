@@ -1,9 +1,8 @@
-<div>
+<div class="container">
   <h2>Créer une entreprise</h2>
   <form [formGroup]="companyForm" (ngSubmit)="isEditing ? updateCompany() : createCompany()">
     <label for="name">Nom :</label>
-    <input id="name" formControlName="name" required>
-
+    <input class="name" id="name" formControlName="name" required>
     <label for="subscription">Type d'abonnement :</label>
     <select id="subscription" formControlName="subscription">
       <option *ngFor="let type of subscriptionTypes" [value]="type">{{ type }}</option>
@@ -19,7 +18,8 @@
   </form>
 </div>
 
-<div *ngFor="let company of companies">
+
+<div class="companies" *ngFor="let company of companies" >
   <h3>{{ company.name }}</h3>
   <button *ngIf="company.id !== undefined"
           (click)="viewSupplies(company.id)"
