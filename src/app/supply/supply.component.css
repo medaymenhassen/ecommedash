@@ -20,18 +20,25 @@
 }
 
   .supply-item:hover {
-    background-color: #f9f9f9 ;
+    background-color: #f9f9f9;
   }
+
 .supplys {
   background-color: #151e2b;
-  padding:100px 0 0 0;
-  color:aliceblue;
+  padding: 100px 0 0 0;
+  color: aliceblue;
 }
+
 h2 {
-    padding: 20px 0 20px 0;
+  padding: 20px 0 20px 0;
+  text-shadow: 3px 3px 15px #56b54e;
+  font-size:32px
 }
+
 label {
-  padding: 0 20px 0 20px;
+  padding: 0px 20px 0px 20px;
+  text-shadow: 1px 1px #56b54e;
+  font-size : 24px;
 }
 
 input {
@@ -39,11 +46,17 @@ input {
   border-color: #56b54e;
   border-radius: 8px;
 }
+
 button {
   padding: 0 20px 0 20px;
-  margin: 0 20px 20px 8px;
+  margin: 20px 20px 20px 8px;
   color: aliceblue;
   background-color: #1c2838;
+  border-style: solid;
+  border-color: #56b54e;
+  border-radius: 8px;
+}
+select {
   border-style: solid;
   border-color: #56b54e;
   border-radius: 8px;
@@ -52,5 +65,33 @@ h3 {
   padding: 0 0 20px 0;
   color: #56b54e;
   font-size: 24px;
-
+  text-shadow: 0.5px 0.5px #ffffff;
 }
+
+th {
+  padding: 20px 0 20px 0;
+  text-shadow: 1px 1px #56b54e;
+  font-size: 20px;
+}
+p {
+  font-size: 18px;
+}
+.chart-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  padding: 20px;
+  background-color: #151e2b;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+  .chart-container canvas {
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 1 / 1; 
+    background-color: #1e2b3c;
+    border: 2px solid #56b54e;
+    border-radius: 10px;
+  }
+
