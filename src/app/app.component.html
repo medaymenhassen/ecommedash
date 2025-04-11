@@ -9,7 +9,7 @@
     <div class="nav-items" [class.active]="menuActive">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMenu()">Home</a>
 
-      <a routerLink="/mycompany" routerLinkActive="active" (click)="toggleMenu()">List</a>
+      <a routerLink="/list" routerLinkActive="active" (click)="toggleMenu()">List</a>
       <a routerLink="/register" routerLinkActive="active" (click)="toggleMenu()">Register</a>
       <a routerLink="/cart" routerLinkActive="active" (click)="toggleMenu()">
         <i class="fa fa-shopping-cart"></i> Cart (<span class="cart-list">{{ getTotalItemCount() }}</span>)

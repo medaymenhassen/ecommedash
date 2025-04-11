@@ -64,6 +64,15 @@ select {
   border-color: #56b54e;
   border-radius: 8px;
 }
+
+.history {
+  display: none;
+}
+
+  .history.active {
+    display: table;
+  }
+
 h3 {
   padding: 0 0 20px 0;
   color: #56b54e;

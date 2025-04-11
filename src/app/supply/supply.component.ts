@@ -16,6 +16,13 @@ Chart.register(...registerables);
 })
 
 export class SupplyComponent implements OnInit, AfterViewInit {
+  showHistory = false;
+
+  toggleHistory() {
+    this.showHistory = !this.showHistory;
+  }
+  accessLink: string | null = null;
+
   supplyForm!: FormGroup;
   productForm!: FormGroup;
   supplies: Supply[] = [];
@@ -48,10 +55,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     private router: Router
   ) { }
   ngOnInit(): void {
-    if (this.selectedProduct) {
-      console.log('Valeur de selectedProduct:', this.selectedProduct); // Vérification de l'objet complet
-      console.log('Valeur de lifo:', this.selectedProduct.lifo); // Vérification du lifo
-    }
+    
     this.initForm();
     this.route.queryParams.subscribe(params => {
       const rawId = params['companyId'];
@@ -61,7 +65,6 @@ export class SupplyComponent implements OnInit, AfterViewInit {
         this.currentCompanyId = companyId;
         this.getSuppliesByCompany(companyId);
       } else {
-        console.error('ID entreprise invalide:', rawId);
         this.supplies = [];
       }
     });
@@ -425,15 +428,12 @@ export class SupplyComponent implements OnInit, AfterViewInit {
 
   private logPositiveAndNegativeQuantities(): void {
     if (!this.historyProducts || this.historyProducts.length === 0) {
-      console.warn('Aucun produit dans historyProducts.');
       return;
     }
 
     this.positiveQuantityProducts = this.historyProducts.filter(product => product.quantity > 0);
     this.negativeQuantityProducts = this.historyProducts.filter(product => product.quantity < 0);
 
-    console.log('Produits avec quantités positives :', this.positiveQuantityProducts);
-    console.log('Produits avec quantités négatives :', this.negativeQuantityProducts);
   }
 
   // Fonctions utilitaires
@@ -527,5 +527,20 @@ export class SupplyComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+
+generateAccessLink(companyId: number): void {
+  if (!companyId) {
+    console.error('companyId is invalid or undefined');
+    return;
+  }
+  this.supplyService.generateAccessLink(companyId).subscribe({
+    next: (res: any) => {
+      this.accessLink = res.url;
+      setTimeout(() => this.accessLink = null, 3600000);
+    },
+    error: (err) => console.error('Erreur génération lien', err)
+  });
+}
 
 }

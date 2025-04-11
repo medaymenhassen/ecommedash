@@ -28,12 +28,3 @@
   </button>
   <button (click)="editCompany(company)">Modifier</button>
   <button (click)="deleteCompany(company.id)">Supprimer</button>
-  <button (click)="generateAccessLink(company.id!)">
-    Générer un lien d'invitation
-  </button>
-
-  <p>Lien d'accès : <a [href]="accessLink" target="_blank">{{ accessLink }}</a></p>
-
-  <h4>Utilisateurs avec accès :</h4>
-
-</div>

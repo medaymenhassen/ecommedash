@@ -15,6 +15,11 @@ Chart.register(...registerables);
   styleUrl: './supplyproduct.component.css'
 })
 export class SupplyproductComponent implements OnInit, AfterViewInit {
+  showHistory = false;
+
+  toggleHistory() {
+    this.showHistory = !this.showHistory;
+  }
   @ViewChild('productChart') productChartRef!: ElementRef;
   private historyChart!: Chart;
   productForm!: FormGroup;

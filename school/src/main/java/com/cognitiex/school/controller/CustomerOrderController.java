@@ -285,7 +285,7 @@ public class CustomerOrderController {
                 throw new RuntimeException("Échec de la génération du token");
             }
 
-            String inviteLink = "http://localhost:4200/join/" + token;
+            String inviteLink = "https://www.cognitiex.com/join/" + token;
 
             // Récupération de la date d'expiration
             LocalDateTime expiryDate = companyService.getTokenExpiry(companyId);

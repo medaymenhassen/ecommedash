@@ -16,7 +16,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class CompanyComponent implements OnInit {
   owner!: number;
-  accessLink: string | null = null;
   isEditing = false;
   companies: Company[] = [];
   subscriptionTypes = Object.values(SubscriptionType);
@@ -138,15 +137,6 @@ export class CompanyComponent implements OnInit {
     });
   }
 
-  generateAccessLink(companyId: number) {
-    this.authService.generateAccessLink(companyId).subscribe({
-      next: (res: any) => {
-        this.accessLink = res.url;
-        setTimeout(() => this.accessLink = null, 3600000);
-      },
-      error: (err) => console.error('Erreur génération lien', err)
-    });
-  }
   handleInvitation(token: string) {
     this.authService.joinCompanyByToken(token).subscribe({
       next: (res: any) => {

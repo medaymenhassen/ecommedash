@@ -64,7 +64,7 @@ export interface JwtPayload {
   providedIn: 'root'
 })
 export class UsercompanyService {
-  private baseUrl = 'http://localhost:8080/api/customer-orders';
+  private baseUrl = 'https://www.cognitiex.com/api/customer-orders';
   
   constructor(
     private http: HttpClient,

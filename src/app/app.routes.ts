@@ -15,7 +15,7 @@ export const routes: Routes = [
   { path: 'attribut', component: AttributeComponent, canActivate: [authGuard] },
   { path: 'analyse', component: StockComponent },
   { path: 'client', component: ClientComponent },
-  { path: 'mycompany', component: CompanyComponent, canActivate: [authGuard] },
+  { path: 'list', component: CompanyComponent, canActivate: [authGuard] },
   { path: 'join/:token', component: CompanyComponent, canActivate: [authGuard] },
   { path: 'supply', component: SupplyComponent, canActivate: [authGuard] },
   { path: 'product', component: SupplyproductComponent, canActivate: [authGuard] },

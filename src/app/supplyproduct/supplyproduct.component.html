@@ -230,8 +230,11 @@
   <h3>Historique des produits</h3>
 
   <p>Somme totale des quantités : {{ totalQuantity }}</p>
+  <button (click)="toggleHistory()">
+    {{ showHistory ? 'Masquer l\'historique' : 'Afficher l\'historique' }}
+  </button>
 
-  <table>
+  <table class="history" [class.active]="showHistory">
     <thead>
       <tr>
         <th>Produit</th>
