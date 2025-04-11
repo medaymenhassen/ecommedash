@@ -25,4 +25,32 @@
 .supplys {
   background-color: #151e2b;
   padding:100px 0 0 0;
+  color:aliceblue;
+}
+h2 {
+    padding: 20px 0 20px 0;
+}
+label {
+  padding: 0 20px 0 20px;
+}
+
+input {
+  border-style: solid;
+  border-color: #56b54e;
+  border-radius: 8px;
+}
+button {
+  padding: 0 20px 0 20px;
+  margin: 0 20px 20px 8px;
+  color: aliceblue;
+  background-color: #1c2838;
+  border-style: solid;
+  border-color: #56b54e;
+  border-radius: 8px;
+}
+h3 {
+  padding: 0 0 20px 0;
+  color: #56b54e;
+  font-size: 24px;
+
 }
