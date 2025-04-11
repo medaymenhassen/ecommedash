@@ -25,14 +25,14 @@
 
 .supplys {
   background-color: #151e2b;
-  padding: 100px 0 0 0;
+  padding: 100px 0 0 30px;
   color: aliceblue;
 }
 
 h2 {
   padding: 20px 0 20px 0;
   text-shadow: 3px 3px 15px #56b54e;
-  font-size:32px
+  font-size:32px;
 }
 
 label {
@@ -56,6 +56,9 @@ button {
   border-color: #56b54e;
   border-radius: 8px;
 }
+  button:hover {
+    background-color: #364a63;
+  }
 select {
   border-style: solid;
   border-color: #56b54e;
@@ -68,10 +71,29 @@ h3 {
   text-shadow: 0.5px 0.5px #ffffff;
 }
 
+table {
+  width: 90%;
+  margin: 20px 0 30px 60px;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  background-color: #1c2838;
+  color: white;
+  border: 2px solid #56b54e;
+}
+
 th {
-  padding: 20px 0 20px 0;
+  padding: 20px 0;
   text-shadow: 1px 1px #56b54e;
   font-size: 20px;
+  border: 1px solid #56b54e;
+}
+
+td {
+  padding: 20px 220px 20px 220px;
+  border: 1px solid #56b54e;
+}
+tr:hover {
+  background-color: #364a63;
 }
 p {
   font-size: 18px;

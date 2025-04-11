@@ -17,7 +17,9 @@
   box-sizing: border-box;
   scroll-behavior: smooth;
 }
-
+.homedesign {
+  background-color: #151e2b;
+}
 body {
   font-family: 'Arial', sans-serif;
   color: var(--secondary-color);
@@ -333,4 +335,5 @@ body {
   .services .titleservice {
     font-size: 25px;
   }
+
 }

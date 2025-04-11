@@ -6,6 +6,8 @@
 
 h2 {
   padding: 0 0 20px 0;
+  text-shadow: 3px 3px 15px #56b54e;
+  font-size: 32px;
 }
 
 label {
@@ -15,6 +17,12 @@ label {
 input {
   border-style: solid;
   border-color: #56b54e;
+  border-radius:8px;
+}
+select {
+  border-style: solid;
+  border-color: #56b54e;
+  border-radius: 8px;
 }
 
 .companies {
@@ -26,7 +34,8 @@ input {
 h3 {
   padding: 0 0 20px 0;
   color: #56b54e;
-  font-size:24px;
+  font-size: 24px;
+  text-shadow: 0.5px 0.5px #ffffff;
 }
 
 button {
@@ -37,6 +46,9 @@ button {
   border-style: solid;
   border-color: #56b54e;
   border-radius: 8px;
+}
+button:hover {
+  background-color: #364a63;
 }
 h4 {
   padding: 10px 0 30px 0;
