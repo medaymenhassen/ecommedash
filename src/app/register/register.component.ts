@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { UsercompanyService } from '../usercompany.service';
 import { PLATFORM_ID } from '@angular/core';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -122,27 +123,23 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
       username: this.username,
       password: this.password,
     };
-
-    this.usercompanyService.register(authRequest).subscribe({
+    this.usercompanyService.register(authRequest).pipe(
+      switchMap(() => this.authService.authenticate(authRequest))
+    ).subscribe({
       next: (response) => {
-
-        this.authService.authenticate(authRequest).subscribe({
-          next: (response) => {
-            if (response && response.accessToken) {
-              this.authService.saveToken(response.accessToken);
-              this.authService.storeNewRefreshToken(response.refreshToken);
-              this.router.navigate(['/']);
-            } else {
-              this.errorMessage = 'Invalid response received from server.';
-            }
-          },
-          error: (error) => {
-            this.errorMessage = error.error?.message || 'Error while logging in';
-          }
-        });
+        if (response && response.accessToken) {
+          this.authService.saveToken(response.accessToken);
+          this.authService.storeNewRefreshToken(response.refreshToken);
+          this.router.navigate(['/']);
+        } else {
+          this.errorMessage = 'Invalid response received from server.';
+        }
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Registration or login failed';
       }
-      
     });
+
   }
 
   toggleForm(isLogin: boolean): void {
