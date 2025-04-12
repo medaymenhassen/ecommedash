@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ScienceService {
-  private baseUrl = 'http://127.0.0.1:8000/py/assistance/';
+  private baseUrl = 'https://www.cognitiex.com/py/assistance/';
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) { }
 

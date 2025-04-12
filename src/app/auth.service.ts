@@ -157,7 +157,7 @@ export interface CartOrderItem {
 })
 export class AuthService {
 
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = 'https://www.cognitiex.com/api';
   private readonly ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15;
   private readonly REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
