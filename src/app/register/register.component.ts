@@ -139,7 +139,6 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
         this.errorMessage = error.error?.message || 'Registration or login failed';
       }
     });
-
   }
 
   toggleForm(isLogin: boolean): void {
