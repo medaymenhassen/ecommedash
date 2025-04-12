@@ -125,19 +125,23 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.usercompanyService.register(authRequest).subscribe({
       next: (response) => {
-        if (response && response.accessToken) {
-          this.authService.saveToken(response.accessToken);
-          this.authService.storeNewRefreshToken(response.refreshToken);
-          this.router.navigate(['/']);
-        } else {
-          this.errorMessage = 'Invalid response received from server.';
-          console.error('Error in response: ', response);
-        }
-      },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Error while registering';
-        console.error('Error during registration: ', error);
+
+        this.authService.authenticate(authRequest).subscribe({
+          next: (response) => {
+            if (response && response.accessToken) {
+              this.authService.saveToken(response.accessToken);
+              this.authService.storeNewRefreshToken(response.refreshToken);
+              this.router.navigate(['/']);
+            } else {
+              this.errorMessage = 'Invalid response received from server.';
+            }
+          },
+          error: (error) => {
+            this.errorMessage = error.error?.message || 'Error while logging in';
+          }
+        });
       }
+      
     });
   }
 

@@ -66,7 +66,7 @@ export interface JwtPayload {
   providedIn: 'root'
 })
 export class UsercompanyService {
-  private baseUrl = 'https://www.cognitiex.com/api/customer-orders';
+  private baseUrl = 'http://localhost:8080/api/customer-orders';
   private readonly ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15;
   private readonly REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
