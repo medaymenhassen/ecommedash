@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnDestroy, OnInit, Inject } from '@angular/core';
-import { AuthService, AuthenticationRequest } from '../auth.service';
+import { AuthService, AuthenticationRequest, User } from '../auth.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   confirmPassword: string = '';
   errorMessage: string = '';
   showPassword: boolean = false;
-
+  
   constructor(
     private authService: AuthService,
     private usercompanyService: UsercompanyService,
@@ -33,6 +33,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   ngOnInit(): void {
+
     this.titleService.setTitle('Welcome to Cognitiex - Join or Sign In');
     this.meta.addTags([
       { name: 'description', content: 'Create meaningful connections and access exclusive content by joining Cognitiex. Log in or sign up now.' },

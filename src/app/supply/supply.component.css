@@ -80,6 +80,14 @@ h3 {
   text-shadow: 0.5px 0.5px #ffffff;
 }
 
+.product {
+  display: none;
+}
+
+  .product.active {
+    display: table;
+  }
+
 table {
   width: 90%;
   margin: 20px 0 30px 60px;
@@ -126,3 +134,55 @@ p {
     border-radius: 10px;
   }
 
+@media (max-width: 768px) {
+  table {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin: 10px 0;
+  }
+
+    table.active {
+      display: flex;
+    }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  tr {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin: 10px;
+    background-color: #1c2838;
+    border: 1px solid #56b54e;
+    border-radius: 10px;
+  }
+
+  td {
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #56b54e;
+  }
+
+    td:last-child {
+      border-bottom: none;
+    }
+
+  button {
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+  }
+  .chart-container{
+      display:flex;
+      flex-direction:column;
+  }
+}

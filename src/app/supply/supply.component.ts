@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { HistoryProduct, Supply, UsercompanyService } from '../usercompany.service';
+import { HistoryProduct, Supply, User, UsercompanyService } from '../usercompany.service';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +17,11 @@ Chart.register(...registerables);
 
 export class SupplyComponent implements OnInit, AfterViewInit {
   showHistory = false;
+  isMobile = false;
+
+  toggleProduct() {
+    this.isMobile = !this.isMobile;
+  }
 
   toggleHistory() {
     this.showHistory = !this.showHistory;
@@ -29,6 +34,8 @@ export class SupplyComponent implements OnInit, AfterViewInit {
   selectedSupply: Supply | null = null;
   currentCompanyId: number | null = null;
   private _selectedProduct: Product | null = null;
+  currentUser: User | null = null;  // Déclaration de la variable currentUser
+
   @ViewChild('productChart') productChartRef!: ElementRef;
   private historyChart!: Chart;
 
@@ -55,6 +62,16 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     private router: Router
   ) { }
   ngOnInit(): void {
+
+    this.supplyService.getUserProfile().subscribe({
+      next: user => {
+        this.currentUser = user;
+        console.log('Utilisateur récupéré depuis le token :', user);
+      },
+      error: err => {
+        console.error('Erreur récupération user', err);
+      }
+    });
     
     this.initForm();
     this.route.queryParams.subscribe(params => {
@@ -108,7 +125,7 @@ export class SupplyComponent implements OnInit, AfterViewInit {
     this.supplyForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      totalAmt: [0, Validators.required],
+      totalAmt: [100, Validators.required],
       companiesIds: [this.currentCompanyId],
       products: this.fb.array([]), // important
     });

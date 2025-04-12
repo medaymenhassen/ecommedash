@@ -7,9 +7,6 @@
     <label>Email:</label>
     <input formControlName="email" type="email" required />
 
-    <label>Total Amount:</label>
-    <input formControlName="totalAmt" type="number" required />
-
     <button type="submit">
       {{ selectedSupply ? 'Mettre à jour' : 'Créer' }} Supply
     </button>
@@ -21,8 +18,8 @@
   <ul>
     <li *ngFor="let supply of supplies">
       {{ supply.name }} - {{ supply.totalAmt }}€
-      <button (click)="editSupply(supply)">Modifier</button>
-      <button (click)="deleteSupply(supply.id)">Supprimer</button>
+      <button *ngIf="currentUser?.owner?.id === currentCompanyId" (click)="editSupply(supply)">Modifier</button>
+      <button *ngIf="currentUser?.owner?.id === currentCompanyId" (click)="deleteSupply(supply.id)">Supprimer</button>
       <button *ngIf="supply.id !== undefined"
               (click)="viewProduct(supply.id)"
               [disabled]="!supply.id">
@@ -70,9 +67,13 @@
         <h3>{{ supply.name }}</h3>
         <p>{{supply.id}}</p>
         <!-- Liste des produits pour chaque fourniture -->
+        <button (click)="toggleProduct()">
+          {{ isMobile ? 'Masquer la liste des produits' : 'Afficher la liste des produits' }}
+        </button>
+
         <div *ngIf="supply.products && supply.products.length > 0; else noProducts">
 
-          <table>
+          <table class="product" [class.active]="isMobile">
             <thead>
               <tr>
                 <th>Produit</th>
@@ -148,12 +149,13 @@
       <h3>Historique des produits</h3>
 
       <p>Somme totale des quantités : {{ totalQuantity }}</p>
-
+      <div *ngIf="currentUser?.owner?.id === currentCompanyId">
       <button (click)="generateAccessLink(this.currentCompanyId!)">
         Générer un lien d'invitation
       </button>
 
       <p>Lien d'accès : <a [href]="accessLink" target="_blank">{{ accessLink }}</a></p>
+      </div>
       <button (click)="toggleHistory()">
         {{ showHistory ? 'Masquer l\'historique' : 'Afficher l\'historique' }}
       </button>

@@ -51,8 +51,10 @@ export interface AuthenticationRequest {
 export interface User {
   id: number;
   username: string;
-  // Ajoutez d'autres propriétés utilisateur selon vos besoins
+  owner?: Company;
+  workCompanies: Company[];
 }
+
 export interface JwtPayload {
   userId: number;
   username: string;
@@ -64,8 +66,10 @@ export interface JwtPayload {
   providedIn: 'root'
 })
 export class UsercompanyService {
-  private baseUrl = 'https://www.cognitiex.com/api/customer-orders';
-  
+  private baseUrl = 'http://localhost:8080/api/customer-orders';
+  private readonly ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15;
+  private readonly REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -261,5 +265,17 @@ export class UsercompanyService {
       headers: this.getHeaders()
     });
   }
+
+  getUserProfile(): Observable<User> {
+    const username = this.authService.getUsernameFromToken();
+    if (!username) {
+      throw new Error('Nom d’utilisateur introuvable dans le token');
+    }
+
+    return this.http.get<User>(`${this.baseUrl}/profile/${username}`, {
+      headers: this.getHeaders()
+    });
+  }
+
 
 }

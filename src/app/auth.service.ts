@@ -6,6 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { NgZone } from '@angular/core';
 import { Company } from './usercompany.service';
 
+
 interface CustomJwtPayload {
   exp: number; // Timestamp de l'expiration
   userId?: number; // ID utilisateur, optionnel
@@ -19,8 +20,10 @@ export interface AuthenticationRequest {
 export interface User {
   id: number;
   username: string;
-  // Ajoutez d'autres propriétés utilisateur selon vos besoins
+  owner?: Company;
+  workCompanies: Company[];
 }
+
 export interface JwtPayload {
   userId: number;
   username: string;
@@ -49,6 +52,8 @@ export interface Product {
   costManufacturing: number;
   costCommercialization: number;
   imageUrl?: string;           // <--- Nouveau
+  user?: User; // <-- Pour accéder à user.owner.id
+
 }
 
 export interface Category {
@@ -152,7 +157,7 @@ export interface CartOrderItem {
 })
 export class AuthService {
 
-  private baseUrl = 'https://www.cognitiex.com/api';
+  private baseUrl = 'http://localhost:8080/api';
   private readonly ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15;
   private readonly REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 

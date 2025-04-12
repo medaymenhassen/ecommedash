@@ -285,7 +285,7 @@ public class CustomerOrderController {
                 throw new RuntimeException("Échec de la génération du token");
             }
 
-            String inviteLink = "https://www.cognitiex.com/join/" + token;
+            String inviteLink = "http://localhost:4200/join/" + token;
 
             // Récupération de la date d'expiration
             LocalDateTime expiryDate = companyService.getTokenExpiry(companyId);
@@ -827,7 +827,26 @@ public class CustomerOrderController {
     
     
     
-    
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<?> getUserProfile(
+            @PathVariable String username) {
+
+        try {
+            User user = userService.findByUsername(username);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Utilisateur non trouvé"));
+            }
+
+            return ResponseEntity.ok(user);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Erreur serveur : " + e.getMessage()));
+        }
+    }
+   
     
     
     

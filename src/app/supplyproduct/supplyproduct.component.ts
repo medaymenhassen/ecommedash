@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Product } from '../auth.service';
-import { Company, HistoryProduct, UsercompanyService } from '../usercompany.service';
+import { Company, HistoryProduct, User, UsercompanyService } from '../usercompany.service';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -20,6 +20,9 @@ export class SupplyproductComponent implements OnInit, AfterViewInit {
   toggleHistory() {
     this.showHistory = !this.showHistory;
   }
+  currentUser: User | null = null; // Utilisateur connecté
+  currentCompanyId: number | null = null; // ID de l'entreprise en cours
+
   @ViewChild('productChart') productChartRef!: ElementRef;
   private historyChart!: Chart;
   productForm!: FormGroup;
@@ -63,6 +66,15 @@ export class SupplyproductComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.productService.getUserProfile().subscribe({
+      next: user => {
+        this.currentUser = user;
+        console.log('Utilisateur récupéré depuis le token :', user);
+      },
+      error: err => {
+        console.error('Erreur récupération user', err);
+      }
+    });
     this.initForm();
 
     this.route.queryParams.subscribe(params => {
@@ -219,7 +231,6 @@ export class SupplyproductComponent implements OnInit, AfterViewInit {
     this.productService.getCompanysBySupply(supplyId).subscribe({
       next: (companies) => {
         this.companies = companies;
-        console.log('Entreprises récupérées :', companies);
       },
       error: (error) => {
         console.error('Erreur lors de la récupération des entreprises :', error);
