@@ -51,13 +51,14 @@ export class CompanyComponent implements OnInit {
       next: user => {
         this.currentUser = user;
         console.log('Utilisateur récupéré depuis le token :', user);
+
+        this.loadUserCompanies();
+        this.owner != this.currentUser.owner?.id;
       },
       error: err => {
         console.error('Erreur récupération user', err);
       }
     });
-    this.owner = this.getCurrentUserId();
-    this.loadUserCompanies();
     this.route.paramMap.subscribe(params => {
       const token = params.get('token');
       if (token) {
@@ -66,22 +67,17 @@ export class CompanyComponent implements OnInit {
     });
   }
 
-  private getCurrentUserId(): number {
-    return 100; // À remplacer par la récupération réelle de l'utilisateur
-  }
-
   loadUserCompanies() {
     this.authService.getUserCompanies().subscribe({
       next: (companies: Company[]) => { // <-- Typage explicite
         console.log('Données reçues du backend:', companies);
         this.companies = companies;
-        this.isOwner = this.companies.some(company =>
-          company.id === this.currentUser?.owner?.id
+        this.isOwner = companies.some(company =>
+          company.id === this.currentUser?.owner?.id // ✅ Compare number (company.id) avec number (user.owner.id)
+          
         );
 
         // Ajoutez ces logs pour vérification
-        console.log('User.owner:', this.currentUser?.owner);
-        console.log('Company IDs:', companies.map(c => c.id));
         //console.log('Type de company.id:', typeof companies[0]?.id);
         //console.log('Type de user.owner:', typeof this.currentUser?.owner);
 
