@@ -69,18 +69,14 @@ export class CompanyComponent implements OnInit {
 
   loadUserCompanies() {
     this.authService.getUserCompanies().subscribe({
-      next: (companies: Company[]) => { // <-- Typage explicite
+      next: (companies: Company[]) => {
         console.log('Données reçues du backend:', companies);
-        this.companies = companies;
-        this.isOwner = companies.some(company =>
-          company.id === this.currentUser?.owner?.id // ✅ Compare number (company.id) avec number (user.owner.id)
-          
-        );
 
-        // Ajoutez ces logs pour vérification
-        //console.log('Type de company.id:', typeof companies[0]?.id);
-        //console.log('Type de user.owner:', typeof this.currentUser?.owner);
-
+        // Ajouter une propriété `isOwner` à chaque entreprise
+        this.companies = companies.map(company => ({
+          ...company,
+          isOwner: company.id === this.currentUser?.owner?.id
+        }));
       },
       error: (err) => console.error("Erreur chargement entreprises", err)
     });
