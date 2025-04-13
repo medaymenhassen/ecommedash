@@ -39,8 +39,7 @@ export class CompanyComponent implements OnInit {
     this.companyForm = this.fb.group({ // Déclaration ici après l'initialisation de `fb`
       name: ['', Validators.required],
       subscription: [SubscriptionType.BASIC, Validators.required],
-      subscriptionStartDate: ['', Validators.required],
-      subscriptionEndDate: ['', Validators.required],
+      subscriptionDuration: [1, [Validators.required, Validators.min(1)]],
     });
   }
 
@@ -93,9 +92,12 @@ export class CompanyComponent implements OnInit {
 
     formData.append('name', formValue.name);
     formData.append('subscription', formValue.subscription);
-    formData.append('subscriptionStartDate', formValue.subscriptionStartDate);
-    formData.append('subscriptionEndDate', formValue.subscriptionEndDate);
-    
+    formData.append('subscriptionStartDate', new Date().toISOString()); // Date de début : maintenant
+
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + formValue.subscriptionDuration * 30); // Calcul de la date de fin
+    formData.append('subscriptionEndDate', endDate.toISOString());
+
     this.authService.createCompany(formData).subscribe({
       next: (res) => {
         console.log('Entreprise créée', res);
@@ -139,8 +141,13 @@ export class CompanyComponent implements OnInit {
 
   updateCompany() {
     if (!this.selectedCompany.id) return;
+    const formValue = this.companyForm.value;
+    const updateData = {
+      ...formValue,
+      subscriptionStartDate: new Date().toISOString(), // Date de début : maintenant
+      subscriptionEndDate: new Date(new Date().getTime() + formValue.subscriptionDuration * 30 * 24 * 60 * 60 * 1000).toISOString() // Calcul de la date de fin
+    };
 
-    const updateData = { ...this.companyForm.value }; // Cloner les valeurs
     this.authService.updateCompany(this.selectedCompany.id, updateData).subscribe({
       next: () => {
         this.isEditing = false;
@@ -159,5 +166,22 @@ export class CompanyComponent implements OnInit {
       error: (err) => console.error('Erreur lors de l\'acceptation de l\'invitation', err)
     });
   }
+  updateDates(event: Event): void {
+    const inputElement = event.target as HTMLInputElement; // Cast explicite vers HTMLInputElement
+    const durationInMonths = parseInt(inputElement.value, 10);
+
+    if (!isNaN(durationInMonths) && durationInMonths > 0) {
+      const startDate = new Date(); // Date actuelle
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + durationInMonths * 30); // Ajout approximatif de x mois (x * 30 jours)
+
+      // Mettre à jour les champs cachés du formulaire avec uniquement la date (format YYYY-MM-DD)
+      this.companyForm.patchValue({
+        subscriptionStartDate: startDate.toISOString().split('T')[0], // Format YYYY-MM-DD
+        subscriptionEndDate: endDate.toISOString().split('T')[0],   // Format YYYY-MM-DD
+      });
+    }
+  }
+
 
 }

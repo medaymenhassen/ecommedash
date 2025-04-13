@@ -8,12 +8,16 @@
       <option *ngFor="let type of subscriptionTypes" [value]="type">{{ type }}</option>
     </select>
 
-    <label for="subscriptionStartDate">Date de début :</label>
-    <input type="date" id="subscriptionStartDate" formControlName="subscriptionStartDate" required>
+    <label for="duration">Durée d'engagement(en mois)</label>
+    <input id="duration"
+            type="number"
+            min="1"
+            [value]="1"
+            (input)="updateDates($event)" />
 
-    <label for="subscriptionEndDate">Date de fin :</label>
-    <input type="date" id="subscriptionEndDate" formControlName="subscriptionEndDate" required>
-
+    <!-- Champs cachés pour les dates -->
+    <input type="hidden" formControlName="subscriptionStartDate" />
+    <input type="hidden" formControlName="subscriptionEndDate" />
     <button class="butcreer" type="submit">{{ isEditing ? 'Mettre à jour' : 'Créer' }}</button>
   </form>
 </div>
