@@ -1,205 +1,227 @@
-<div class="supro" >
-<div class="product-container">
-  <h1>{{ selectedProduct ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
+<div class="supro">
+  <div class="product-container">
+    <h1>{{ selectedProduct ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
 
 
-  <div *ngIf="selectedProduct" class="sell-section">
-    <h3>Gestion du stock</h3>
+    <div *ngIf="selectedProduct" class="sell-section">
+      <h3>Gestion du stock</h3>
 
-    <!-- Formulaire pour ajouter au stock -->
-    <form [formGroup]="productForm" (ngSubmit)="increaseStock()" class="stock-form">
-      <div class="form-group">
-        <label for="quantityToAdd">Quantité à ajouter au stock :</label>
-        <input id="quantityToAdd" formControlName="quantityToSell" type="number" class="form-control" />
-        <button type="submit" class="btn btn-success" [disabled]="!productForm.get('quantityToSell')?.valid">
-          Ajouter au stock
+      <!-- Formulaire pour ajouter au stock -->
+      <form [formGroup]="productForm" (ngSubmit)="increaseStock()" class="stock-form">
+        <div class="form-group">
+          <label for="quantityToAdd">Quantité à ajouter au stock :</label>
+          <input id="quantityToAdd" formControlName="quantityToSell" type="number" class="form-control" />
+          <button type="submit" class="btn btn-success" [disabled]="!productForm.get('quantityToSell')?.valid">
+            Ajouter au stock
+          </button>
+        </div>
+      </form>
+
+      <!-- Formulaire pour vendre un produit -->
+      <form [formGroup]="productForm" (ngSubmit)="sellProduct()" class="sell-form">
+        <div class="form-group">
+          <label for="quantityToSell">Quantité à vendre :</label>
+          <input id="quantityToSell"
+                 formControlName="quantityToSell"
+                 type="number"
+                 class="form-control"
+                 [min]="1"
+                 placeholder="Quantité à vendre">
+          <small *ngIf="productForm.get('quantityToSell')?.errors?.['min']" class="text-danger">
+            La quantité doit être positive
+          </small>
+        </div>
+        <button type="submit"
+                class="btn btn-warning"
+                [disabled]="!productForm.get('quantityToSell')?.valid">
+          Valider la vente
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
+    <form [formGroup]="productForm" (ngSubmit)="selectedProduct ? updateProduct() : createProduct()">
 
-    <!-- Formulaire pour vendre un produit -->
-    <form [formGroup]="productForm" (ngSubmit)="sellProduct()" class="sell-form">
+      <!-- Titre -->
       <div class="form-group">
-        <label for="quantityToSell">Quantité à vendre :</label>
-        <input id="quantityToSell"
-               formControlName="quantityToSell"
-               type="number"
-               class="form-control"
-               [min]="1"
-               placeholder="Quantité à vendre">
-        <small *ngIf="productForm.get('quantityToSell')?.errors?.['min']" class="text-danger">
-          La quantité doit être positive
-        </small>
+        <label for="title">Titre</label>
+        <input id="title" formControlName="title" type="text" class="form-control" placeholder="Titre du produit">
       </div>
-      <button type="submit"
-              class="btn btn-warning"
-              [disabled]="!productForm.get('quantityToSell')?.valid">
-        Valider la vente
-      </button>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" class="form-control" placeholder="Description du produit"></textarea>
+      </div>
+
+      <!-- SKU -->
+      <div class="form-group">
+        <label for="sku">SKU</label>
+        <input id="sku" formControlName="sku" type="text" class="form-control" placeholder="Référence produit">
+      </div>
+
+      <!-- LIFO -->
+      <div class="form-group">
+        <label for="lifo">LIFO</label>
+        <input id="lifo" formControlName="lifo" type="checkbox" class="form-check-input">
+      </div>
+
+      <!-- Quantité -->
+      <div class="form-group">
+        <label for="qte">Quantité</label>
+        <input id="qte" formControlName="qte" type="number" class="form-control" placeholder="Quantité">
+      </div>
+
+      <!-- Prix -->
+      <div class="form-group">
+        <label for="price">Prix</label>
+        <input id="price" formControlName="price" type="number" class="form-control" placeholder="Prix du produit">
+      </div>
+
+      <!-- Catégorie -->
+      <div class="form-group">
+        <label for="categorie">Catégorie</label>
+        <input id="categorie" formControlName="categorie" type="text" class="form-control" placeholder="Catégorie du produit">
+      </div>
+
+      <!-- Marque -->
+      <div class="form-group">
+        <label for="marque">Marque</label>
+        <input id="marque" formControlName="marque" type="text" class="form-control" placeholder="Marque du produit">
+      </div>
+
+      <!-- Date de début -->
+      <div class="form-group">
+        <label for="debut">Date de début</label>
+        <input id="debut" formControlName="debut" type="date" class="form-control">
+      </div>
+
+      <!-- Date de péremption -->
+      <div class="form-group">
+        <label for="datePeremption">Date de péremption</label>
+        <input id="datePeremption" formControlName="datePeremption" type="date" class="form-control">
+      </div>
+
+      <!-- Date de fabrication -->
+      <div class="form-group">
+        <label for="dateFabrication">Date de fabrication</label>
+        <input id="dateFabrication" formControlName="dateFabrication" type="date" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="codeBarre">Code Barre</label>
+        <input id="codeBarre" formControlName="codeBarre" type="text" class="form-control" placeholder="Code Barre">
+      </div>
+
+      <!-- Stock Minimum -->
+      <div class="form-group">
+        <label for="stockMinimum">Stock Minimum</label>
+        <input id="stockMinimum" formControlName="stockMinimum" type="number" class="form-control" placeholder="Stock Minimum">
+      </div>
+
+      <!-- Lot Number -->
+      <div class="form-group">
+        <label for="lotNumber">Numéro de Lot</label>
+        <input id="lotNumber" formControlName="lotNumber" type="text" class="form-control" placeholder="Numéro de Lot">
+      </div>
+
+      <!-- Image Url -->
+      <div class="form-group">
+        <label for="imageUrl">Image Url</label>
+        <input id="imageUrl" formControlName="imageUrl" type="text" class="form-control" placeholder="Lien de l'image">
+      </div>
+      <!-- Coût de fabrication -->
+      <div class="form-group">
+        <label for="costManufacturing">Coût de fabrication</label>
+        <input id="costManufacturing" formControlName="costManufacturing" type="number" class="form-control" placeholder="Coût de fabrication">
+      </div>
+
+      <!-- Coût de commercialisation -->
+      <div class="form-group">
+        <label for="costCommercialization">Coût de commercialisation</label>
+        <input id="costCommercialization" formControlName="costCommercialization" type="number" class="form-control" placeholder="Coût de commercialisation">
+      </div>
+
+
+      <div class="form-group">
+        <!-- Bouton Créer visible uniquement pour les employés -->
+        <button type="submit"
+                [disabled]="productForm.invalid"
+                class="btn btn-primary"
+                *ngIf="!isOwner && !selectedProduct">
+          Créer le produit
+        </button>
+
+        <!-- Boutons Mettre à jour/Supprimer visibles uniquement pour le propriétaire -->
+        <ng-container *ngIf="isOwner">
+          <button type="submit"
+                  [disabled]="productForm.invalid"
+                  class="btn btn-primary">
+            {{ selectedProduct ? 'Mettre à jour' : 'Créer' }} le produit
+          </button>
+
+          <button type="button"
+                  (click)="deleteProduct(selectedProduct?.id!)"
+                  class="btn btn-danger"
+                  *ngIf="selectedProduct">
+            Supprimer
+          </button>
+        </ng-container>
+      </div>
     </form>
+
+    <hr>
+
+    <!-- Liste des produits -->
+    <div class="product-list">
+      <h2>Liste des produits</h2>
+      <ul>
+        <li *ngFor="let product of products" (click)="selectProduct(product)">
+          {{ product.title }} ({{ product.sku }})
+        </li>
+      </ul>
+    </div>
   </div>
-  <form [formGroup]="productForm" (ngSubmit)="selectedProduct ? updateProduct() : createProduct()">
-
-    <!-- Titre -->
-    <div class="form-group">
-      <label for="title">Titre</label>
-      <input id="title" formControlName="title" type="text" class="form-control" placeholder="Titre du produit">
-    </div>
-
-    <!-- Description -->
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea id="description" formControlName="description" class="form-control" placeholder="Description du produit"></textarea>
-    </div>
-
-    <!-- SKU -->
-    <div class="form-group">
-      <label for="sku">SKU</label>
-      <input id="sku" formControlName="sku" type="text" class="form-control" placeholder="Référence produit">
-    </div>
-
-    <!-- LIFO -->
-    <div class="form-group">
-      <label for="lifo">LIFO</label>
-      <input id="lifo" formControlName="lifo" type="checkbox" class="form-check-input">
-    </div>
-
-    <!-- Quantité -->
-    <div class="form-group">
-      <label for="qte">Quantité</label>
-      <input id="qte" formControlName="qte" type="number" class="form-control" placeholder="Quantité">
-    </div>
-
-    <!-- Prix -->
-    <div class="form-group">
-      <label for="price">Prix</label>
-      <input id="price" formControlName="price" type="number" class="form-control" placeholder="Prix du produit">
-    </div>
-
-    <!-- Catégorie -->
-    <div class="form-group">
-      <label for="categorie">Catégorie</label>
-      <input id="categorie" formControlName="categorie" type="text" class="form-control" placeholder="Catégorie du produit">
-    </div>
-
-    <!-- Marque -->
-    <div class="form-group">
-      <label for="marque">Marque</label>
-      <input id="marque" formControlName="marque" type="text" class="form-control" placeholder="Marque du produit">
-    </div>
-
-    <!-- Date de début -->
-    <div class="form-group">
-      <label for="debut">Date de début</label>
-      <input id="debut" formControlName="debut" type="date" class="form-control">
-    </div>
-
-    <!-- Date de péremption -->
-    <div class="form-group">
-      <label for="datePeremption">Date de péremption</label>
-      <input id="datePeremption" formControlName="datePeremption" type="date" class="form-control">
-    </div>
-
-    <!-- Date de fabrication -->
-    <div class="form-group">
-      <label for="dateFabrication">Date de fabrication</label>
-      <input id="dateFabrication" formControlName="dateFabrication" type="date" class="form-control">
-    </div>
-
-    <div class="form-group">
-      <label for="codeBarre">Code Barre</label>
-      <input id="codeBarre" formControlName="codeBarre" type="text" class="form-control" placeholder="Code Barre">
-    </div>
-
-    <!-- Stock Minimum -->
-    <div class="form-group">
-      <label for="stockMinimum">Stock Minimum</label>
-      <input id="stockMinimum" formControlName="stockMinimum" type="number" class="form-control" placeholder="Stock Minimum">
-    </div>
-
-    <!-- Lot Number -->
-    <div class="form-group">
-      <label for="lotNumber">Numéro de Lot</label>
-      <input id="lotNumber" formControlName="lotNumber" type="text" class="form-control" placeholder="Numéro de Lot">
-    </div>
-
-    <!-- Image Url -->
-    <div class="form-group">
-      <label for="imageUrl">Image Url</label>
-      <input id="imageUrl" formControlName="imageUrl" type="text" class="form-control" placeholder="Lien de l'image">
-    </div>
-    <!-- Coût de fabrication -->
-    <div class="form-group">
-      <label for="costManufacturing">Coût de fabrication</label>
-      <input id="costManufacturing" formControlName="costManufacturing" type="number" class="form-control" placeholder="Coût de fabrication">
-    </div>
-
-    <!-- Coût de commercialisation -->
-    <div class="form-group">
-      <label for="costCommercialization">Coût de commercialisation</label>
-      <input id="costCommercialization" formControlName="costCommercialization" type="number" class="form-control" placeholder="Coût de commercialisation">
-    </div>
 
 
-    <!-- Boutons -->
-    <div class="form-group">
-      <button type="submit" [disabled]="productForm.invalid" class="btn btn-primary">
-        {{ selectedProduct ? 'Mettre à jour' : 'Créer' }} le produit
-      </button>
-
-      <button type="button" (click)="deleteProduct(selectedProduct?.id!)" class="btn btn-danger" *ngIf="selectedProduct">
-        Supprimer
-      </button>
-
-    </div>
-  </form>
-
-  <hr>
-
-  <!-- Liste des produits -->
-  <div class="product-list">
-    <h2>Liste des produits</h2>
+  <div *ngIf="companies.length > 0; else noCompanies">
+    <h3>Liste des entreprises pour le supply ID </h3>
     <ul>
-      <li *ngFor="let product of products" (click)="selectProduct(product)">
-        {{ product.title }} ({{ product.sku }})
+      <li *ngFor="let company of companies">
+        {{ company.name }}
       </li>
     </ul>
   </div>
-</div>
 
+  <ng-template #noCompanies>
+    <p>Aucune entreprise trouvée pour ce supply ID.</p>
+  </ng-template>
 
-<div *ngIf="companies.length > 0; else noCompanies">
-  <h3>Liste des entreprises pour le supply ID </h3>
-  <ul>
-    <li *ngFor="let company of companies">
-      {{ company.name }}
-    </li>
-  </ul>
-</div>
+  <div>
+    <h3>Historique des produits</h3>
 
-<ng-template #noCompanies>
-  <p>Aucune entreprise trouvée pour ce supply ID.</p>
-</ng-template>
+    <p>Somme totale des quantités : {{ totalQuantity }}</p>
+    <button (click)="toggleHistory()">
+      {{ showHistory ? 'Masquer l\'historique' : 'Afficher l\'historique' }}
+    </button>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <table class="history" [class.active]="showHistory">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Message</th>
+          <th>Date</th>
+          <th>Quantité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let history of historyProducts">
+          <td>{{ history.product.title }}</td>
+          <td>{{ history.message }}</td>
+          <td>{{ history.dateEvent }}</td>
+          <td>{{ history.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 
 
@@ -209,70 +231,17 @@
 
 
 
+  <div>
+    <label for="period-select">Choisissez une période :</label>
+    <select id="period-select" (change)="onPeriodChange($event)">
+      <option value="hour">Heure</option>
+      <option value="day" selected>Jour</option>
+      <option value="month">Mois</option>
+      <option value="quarter">Trimestre</option>
+      <option value="semester">Semestre</option>
+      <option value="year">Année</option>
+    </select>
+  </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div>
-  <h3>Historique des produits</h3>
-
-  <p>Somme totale des quantités : {{ totalQuantity }}</p>
-  <button (click)="toggleHistory()">
-    {{ showHistory ? 'Masquer l\'historique' : 'Afficher l\'historique' }}
-  </button>
-
-  <table class="history" [class.active]="showHistory">
-    <thead>
-      <tr>
-        <th>Produit</th>
-        <th>Message</th>
-        <th>Date</th>
-        <th>Quantité</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let history of historyProducts">
-        <td>{{ history.product.title }}</td>
-        <td>{{ history.message }}</td>
-        <td>{{ history.dateEvent }}</td>
-        <td>{{ history.quantity }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
-
-
-
-
-
-
-
-<div>
-  <label for="period-select">Choisissez une période :</label>
-  <select id="period-select" (change)="onPeriodChange($event)">
-    <option value="hour">Heure</option>
-    <option value="day" selected>Jour</option>
-    <option value="month">Mois</option>
-    <option value="quarter">Trimestre</option>
-    <option value="semester">Semestre</option>
-    <option value="year">Année</option>
-  </select>
-</div>
-
-<canvas #productChart></canvas>
+  <canvas #productChart></canvas>
 </div>

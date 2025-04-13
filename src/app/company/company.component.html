@@ -26,5 +26,6 @@
           [disabled]="!company.id">
     Voir les Supplies
   </button>
-  <button (click)="editCompany(company)">Modifier</button>
-  <button (click)="deleteCompany(company.id)">Supprimer</button>
+  <button *ngIf="isOwner" (click)="editCompany(company)">Modifier</button>
+  <button *ngIf="isOwner" (click)="deleteCompany(company.id)">Supprimer</button>
+  </div>

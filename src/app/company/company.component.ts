@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Company, SubscriptionType, UsercompanyService } from '../usercompany.service';
+import { Company, SubscriptionType, User, UsercompanyService } from '../usercompany.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
@@ -16,9 +16,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class CompanyComponent implements OnInit {
   owner!: number;
+  isOwner: boolean = false;
   isEditing = false;
   companies: Company[] = [];
   subscriptionTypes = Object.values(SubscriptionType);
+  currentUser: User | null = null; // Utilisateur connecté
 
   selectedCompany: Company = {
     id: 0,
@@ -45,6 +47,15 @@ export class CompanyComponent implements OnInit {
   companyForm: FormGroup;
 
   ngOnInit(): void {
+    this.authService.getUserProfile().subscribe({
+      next: user => {
+        this.currentUser = user;
+        console.log('Utilisateur récupéré depuis le token :', user);
+      },
+      error: err => {
+        console.error('Erreur récupération user', err);
+      }
+    });
     this.owner = this.getCurrentUserId();
     this.loadUserCompanies();
     this.route.paramMap.subscribe(params => {
@@ -64,6 +75,16 @@ export class CompanyComponent implements OnInit {
       next: (companies: Company[]) => { // <-- Typage explicite
         console.log('Données reçues du backend:', companies);
         this.companies = companies;
+        this.isOwner = this.companies.some(company =>
+          company.id === this.currentUser?.owner?.id
+        );
+
+        // Ajoutez ces logs pour vérification
+        console.log('User.owner:', this.currentUser?.owner);
+        console.log('Company IDs:', companies.map(c => c.id));
+        //console.log('Type de company.id:', typeof companies[0]?.id);
+        //console.log('Type de user.owner:', typeof this.currentUser?.owner);
+
       },
       error: (err) => console.error("Erreur chargement entreprises", err)
     });

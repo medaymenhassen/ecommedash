@@ -17,6 +17,8 @@ Chart.register(...registerables);
 export class SupplyproductComponent implements OnInit, AfterViewInit {
   showHistory = false;
 
+  isOwner: boolean = false;
+
   toggleHistory() {
     this.showHistory = !this.showHistory;
   }
@@ -231,6 +233,17 @@ export class SupplyproductComponent implements OnInit, AfterViewInit {
     this.productService.getCompanysBySupply(supplyId).subscribe({
       next: (companies) => {
         this.companies = companies;
+        // Dans getCompanysBySupply()
+        this.isOwner = companies.some(company =>
+          company.id === this.currentUser?.owner?.id // ✅ Compare number (company.id) avec number (user.owner.id)
+        );
+
+        // Ajoutez ces logs pour vérification
+        console.log('User.owner:', this.currentUser?.owner);
+        console.log('Company IDs:', companies.map(c => c.id));
+        //console.log('Type de company.id:', typeof companies[0]?.id);
+        //console.log('Type de user.owner:', typeof this.currentUser?.owner);
+
       },
       error: (error) => {
         console.error('Erreur lors de la récupération des entreprises :', error);
