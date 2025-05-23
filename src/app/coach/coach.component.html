@@ -1,0 +1,42 @@
+<div class="container">
+  <div class="video-container">
+    <video #videoElement class="video" autoplay playsinline></video>
+    <canvas #referenceCanvas></canvas>
+    <canvas #outputCanvas class="overlay"></canvas>
+  </div>
+
+  <button (click)="toggleCamera()" class="control-button">
+    {{ isCameraOn ? 'Éteindre' : 'Allumer' }} la caméra
+  </button>
+
+
+  <div *ngIf="currentAnalysis" class="results">
+    <h3>Analyse en temps réel :</h3>
+    <p>Exercice : {{ currentAnalysis.class }}</p>
+    <p>Confiance : {{ currentAnalysis.confidence | percent }}</p>
+    <div *ngIf="currentAnalysis.recommendations?.length">
+      <h4>Recommandations :</h4>
+      <ul>
+        <li *ngFor="let rec of currentAnalysis.recommendations">{{ rec }}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- Dans votre template -->
+<button (click)="toggleAudio()" [class.active]="isAudioEnabled">
+  {{ isAudioEnabled ? '🔊 Désactiver audio' : '🔈 Activer audio' }}
+</button>
+
+<button (click)="stopPlayback()">
+  {{ currentAudioStatus === 'playing' ? '⏸' : '▶' }}
+</button>
+
+<button (click)="togglePlayback()">⏹</button>
+
+<select (change)="selectVoice($event)">
+  <option *ngFor="let voice of availableVoices" [value]="voice.name">
+    {{ voice.name }} ({{ voice.lang }})
+  </option>
+</select>

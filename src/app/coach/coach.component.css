@@ -1,0 +1,132 @@
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 480px;
+}
+
+.video, .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.control-button {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+  .control-button:hover {
+    background: #1976D2;
+  }
+
+.labels, .results {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+  .results h3 {
+    color: #4CAF50;
+  }
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.video-feed, .overlay-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.analysis-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.exercise-header {
+  margin-bottom: 1rem;
+}
+
+.exercise-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.exercise-name {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.confidence-badge {
+  background: #2196F3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.recommendations h4 {
+  margin: 1rem 0 0.5rem;
+  color: #FFC107;
+  font-size: 1.1rem;
+}
+
+.recommendation-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.recommendation-item {
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
