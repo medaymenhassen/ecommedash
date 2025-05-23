@@ -44,7 +44,7 @@ export class CoachService {
       ort.env.wasm.numThreads = 1;
       ort.env.wasm.proxy = true;
       ort.env.wasm.simd = false;
-      ort.env.wasm.wasmPaths = window.location.origin + '/assets/onnx/';
+      ort.env.wasm.wasmPaths = '/assets/onnx/';
 
       // Chargement asynchrone amélioré
       const [model, labelMap] = await Promise.all([

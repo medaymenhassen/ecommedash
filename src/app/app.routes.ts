@@ -8,6 +8,7 @@ import { ClientComponent } from './client/client.component';
 import { CompanyComponent } from './company/company.component';
 import { SupplyComponent } from './supply/supply.component';
 import { SupplyproductComponent } from './supplyproduct/supplyproduct.component';
+import { CoachComponent } from './coach/coach.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'join/:token', component: CompanyComponent, canActivate: [authGuard] },
   { path: 'supply', component: SupplyComponent, canActivate: [authGuard] },
   { path: 'product', component: SupplyproductComponent, canActivate: [authGuard] },
+  { path: 'coach', component: CoachComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
